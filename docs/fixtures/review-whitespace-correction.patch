@@ -1,0 +1,12 @@
+diff --git a/src/requests.js b/src/requests.js
+--- a/src/requests.js
++++ b/src/requests.js
+@@ -20,7 +20,7 @@
+       if (input.description !== undefined && typeof input.description !== 'string') {
+         throw new InputError('Description must be text.', 'description');
+       }
+-      if (typeof input.requesterName !== 'string' || !input.requesterName) {
++      if (typeof input.requesterName !== 'string' || !input.requesterName.trim()) {
+         throw new InputError('Requester name is required.', 'requesterName');
+       }
+       const request = {

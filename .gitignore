@@ -1,0 +1,6 @@
+node_modules/
+playwright-report/
+test-results/
+.demo-runs/
+/context/
+*.log

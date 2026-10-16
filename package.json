@@ -1,0 +1,17 @@
+{
+  "name": "copilot-delivery-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.20.0" },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js",
+    "test:e2e": "playwright test",
+    "check": "npm test && npm run test:e2e",
+    "demo:prepare": "node scripts/prepare-web-demo.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0"
+  }
+}

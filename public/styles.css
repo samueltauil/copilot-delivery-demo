@@ -1,0 +1,25 @@
+:root { color-scheme: light; font-family: system-ui, sans-serif; color: #192b3d; background: #f0f4f8; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 1060px; margin: auto; padding: 3rem 1.5rem; }
+header { max-width: 740px; margin-bottom: 2rem; }
+.eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; font-weight: 700; color: #245d72; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.12; }
+h2 { margin-top: 0; font-size: 1.3rem; }
+.columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+section { padding: 1.75rem; border: 1px solid #cdd8e2; border-radius: 1rem; background: white; }
+label { display: block; font-weight: 650; margin: 1rem 0 .4rem; }
+label span, footer { color: #4b5f70; font-weight: 400; }
+input, textarea { width: 100%; padding: .8rem; font: inherit; border: 1px solid #71869a; border-radius: .4rem; }
+button { margin-top: 1rem; padding: .8rem 1.1rem; font: inherit; font-weight: 650; color: white; background: #17566c; border: 0; border-radius: .4rem; cursor: pointer; }
+button:disabled { opacity: .6; cursor: wait; }
+:focus-visible { outline: 3px solid #875000; outline-offset: 3px; }
+[aria-invalid="true"] { border: 2px solid #a51b29; }
+.field-error, #error { color: #a51b29; }
+.field-error:empty { display: none; }
+#status { color: #185d35; }
+ul { padding: 0; list-style: none; }
+li { padding: .8rem 0; border-bottom: 1px solid #d9e1e8; overflow-wrap: anywhere; }
+li strong, li span { display: block; }
+footer { margin-top: 1.5rem; font-size: .9rem; }
+@media (max-width: 680px) { .columns { grid-template-columns: 1fr; } main { padding-top: 1.5rem; } }
