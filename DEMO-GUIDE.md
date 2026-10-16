@@ -191,6 +191,26 @@ Do not repeat the implementation. Show the equivalent controls or explain them:
 | GitHub Copilot app | Add the local worktree under **Projects**; start a session; use `/plan`, review it, then **Interactive** for approved work; click **Changes** for the diff. [D9] | App access/policy is separate from CLI access. Do not click Create PR without publication approval. |
 | GitHub Mobile | Use available Copilot questions and follow-up while away from the workstation. [D10] | Not a replacement for this local browser/test environment. |
 
+## If they ask: "We use Azure DevOps (Boards, Repos, Pipelines) - what are we missing?"
+
+Short answer: autonomous Copilot features (cloud agent, Copilot code review) run
+on **GitHub-hosted repositories**, not Azure Repos Git. Copilot in the IDE and CLI
+(including the Azure DevOps MCP server) works regardless of where the repo lives.
+Sections 5-7 above are the live proof of what the GitHub side adds.
+
+| Option | What changes | Gets you | Boundary |
+|---|---|---|---|
+| A. Hybrid: keep Boards and Pipelines, move repos to GitHub | Code moves; planning and CI/CD stay | Cloud agent, PR review, templates, rulesets | Needs the Azure Boards GitHub app connection and pipeline re-pointing; verify in your tenant |
+| B. Boards work item -> Copilot | Send a work item to Copilot from Boards | Draft PR in a linked GitHub repo, traced back to the work item; custom agents selectable | Documented by Microsoft; GitHub repo and paid Copilot seat required. Not exercised in this demo |
+| C. Pilot | Move one or two repos first | Evidence before a wider decision | Run the flows in sections 5-7 on the pilot repo |
+| D. Stay on Azure Repos | No migration | IDE/CLI Copilot plus ADO MCP | No autonomous agent or hosted review on Azure Repos |
+
+**Ask them:** which repos are most sensitive, what Azure Pipelines or branch
+policies depend on Azure Repos, and who owns the Boards-GitHub connection.
+**Do not claim** a tenant-specific result or any planned Azure Repos support;
+recheck current Microsoft and GitHub documentation before the session:
+`https://learn.microsoft.com/en-us/azure/devops/boards/github/work-item-integration-github-copilot`.
+
 ## Presenter setup: the props, not the presentation
 
 From `C:\Users\tauilsamuel\Development\playground`, choose a **new** run name:
