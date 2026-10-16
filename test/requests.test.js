@@ -25,3 +25,15 @@ test('rejects invalid objects and descriptions without creating a request', () =
   }
   assert.equal(store.list().length, 0);
 });
+
+test('requires a nonblank requester name, trims valid names, and does not create invalid requests', () => {
+  const store = createRequestStore();
+  for (const requesterName of [undefined, null, 7, {}, '', ' \t\n ']) {
+    assert.throws(
+      () => store.create({ requesterName }),
+      (error) => error.message === 'Requester name is required.' && error.field === 'requesterName'
+    );
+    assert.equal(store.list().length, 0);
+  }
+  assert.equal(store.create({ requesterName: '  Demo Analyst \n' }).requesterName, 'Demo Analyst');
+});
