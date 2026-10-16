@@ -25,3 +25,14 @@ test('rejects invalid objects and descriptions without creating a request', () =
   }
   assert.equal(store.list().length, 0);
 });
+
+test('rejects every invalid name without mutation and trims valid Unicode names', () => {
+  const store = createRequestStore();
+  for (const requesterName of [undefined, null, 0, true, [], {}, '', ' ', '\t\n']) {
+    assert.throws(() => store.create({ requesterName }), {
+      message: 'Requester name is required.', field: 'requesterName'
+    });
+    assert.deepEqual(store.list(), []);
+  }
+  assert.equal(store.create({ requesterName: '  Jos\u00e9  ' }).requesterName, 'Jos\u00e9');
+});

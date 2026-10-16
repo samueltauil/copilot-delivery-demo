@@ -20,9 +20,12 @@ export function createRequestStore() {
       if (input.description !== undefined && typeof input.description !== 'string') {
         throw new InputError('Description must be text.', 'description');
       }
+      if (typeof input.requesterName !== 'string' || !input.requesterName.trim()) {
+        throw new InputError('Requester name is required.', 'requesterName');
+      }
       const request = {
         id: randomUUID(),
-        requesterName: input.requesterName,
+        requesterName: input.requesterName.trim(),
         description: input.description ?? ''
       };
       requests.push(request);

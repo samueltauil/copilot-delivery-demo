@@ -70,3 +70,43 @@ test('unexpected errors are logged and never returned as success', async (t) => 
   assert.equal((await response.json()).error.message, 'An unexpected server error occurred.');
   assert.equal(errors.length, 1);
 });
+
+test('name rule rejects invalid values and never creates a request', async (t) => {
+  const base = await start(t);
+  for (const requesterName of [undefined, null, 3, false, [], {}, '']) {
+    const response = await fetch(`${base}/api/requests`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ requesterName })
+    });
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), {
+      error: { field: 'requesterName', message: 'Requester name is required.' }
+    });
+  }
+  assert.deepEqual(await (await fetch(`${base}/api/requests`)).json(), { requests: [] });
+});
+
+test('whitespace regression: API rejects blank names even when UI is bypassed', async (t) => {
+  const base = await start(t);
+  const response = await fetch(`${base}/api/requests`, {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ requesterName: ' \t\n ' })
+  });
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), {
+    error: { field: 'requesterName', message: 'Requester name is required.' }
+  });
+  assert.deepEqual(await (await fetch(`${base}/api/requests`)).json(), { requests: [] });
+});
+
+test('valid name is trimmed in creation and listing', async (t) => {
+  const base = await start(t);
+  const response = await fetch(`${base}/api/requests`, {
+    method: 'POST', headers: { 'content-type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({ requesterName: '  Demo Analyst  ' })
+  });
+  assert.equal(response.status, 201);
+  const { request } = await response.json();
+  assert.equal(request.requesterName, 'Demo Analyst');
+  assert.deepEqual(await (await fetch(`${base}/api/requests`)).json(), { requests: [request] });
+});

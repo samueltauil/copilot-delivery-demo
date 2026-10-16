@@ -6,6 +6,23 @@ const errorOutput = document.querySelector('#error');
 const list = document.querySelector('#requests');
 const empty = document.querySelector('#empty');
 const button = form.querySelector('button');
+const nameError = document.querySelector('#name-error');
+
+function setNameError(message) {
+  nameError.textContent = message;
+  if (message) {
+    nameInput.setAttribute('aria-invalid', 'true');
+    nameInput.setAttribute('aria-describedby', 'name-error');
+    nameInput.focus();
+  } else {
+    nameInput.removeAttribute('aria-invalid');
+    nameInput.removeAttribute('aria-describedby');
+  }
+}
+
+nameInput.addEventListener('input', () => {
+  if (nameInput.value.trim()) setNameError('');
+});
 
 function requestItem(request) {
   const item = document.createElement('li');
@@ -43,6 +60,11 @@ form.addEventListener('submit', async (event) => {
   event.preventDefault();
   status.textContent = '';
   errorOutput.textContent = '';
+  if (!nameInput.value.trim()) {
+    setNameError('Requester name is required.');
+    return;
+  }
+  setNameError('');
   button.disabled = true;
   try {
     const body = await readResponse(await fetch('/api/requests', {
@@ -55,7 +77,11 @@ form.addEventListener('submit', async (event) => {
     form.reset();
     status.textContent = 'Request submitted.';
   } catch (error) {
-    errorOutput.textContent = `Could not submit request: ${error.message}`;
+    if (error.field === 'requesterName') {
+      setNameError(error.message);
+    } else {
+      errorOutput.textContent = `Could not submit request: ${error.message}`;
+    }
   } finally {
     button.disabled = false;
   }
