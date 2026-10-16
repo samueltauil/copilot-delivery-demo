@@ -63,3 +63,24 @@ presenter readiness table before calling the complete demonstration accepted.
 Do not create/move demo-complete merely to remove a blocker. After those required
 gates pass, create it at the accepted commit without overwriting an existing tag.
 Hosted scenarios remain a separate conditional gate requiring separate approval.
+
+## Hosted scenarios observed (run live-w1, live-w2)
+
+Executed on the public demo repo with the owner's explicit request. Nothing merged.
+
+- W1: issue #1 (base `demo/live-w1/base` = `demo-start`) assigned to Copilot with
+  that base branch. Its first run left only a draft plan commit; a PR comment nudge
+  produced PR #2 with source, UI and test changes. Local check of the PR head:
+  12 Node tests passed; 1 of 4 Chromium tests FAILED (a locator count assertion),
+  so the agent PR needs human review/correction. Not merged.
+- W2: PR #3 (`demo/live-w2/head` -> `demo/live-w2/base` = `demo-candidate`) with the
+  whitespace regression fixture. Copilot code review, requested via the
+  requested_reviewers API, flagged the whitespace-only regression on src/requests.js
+  as a high-severity finding. AI findings are not guaranteed; tests remain the
+  deterministic evidence.
+- W3 (automatic review ruleset): NOT configured; no rulesets exist in the repo.
+
+## Still requiring a human at the keyboard
+
+Interactive VS Code and Copilot app rehearsals and the manual accessibility pass
+cannot be performed by an agent. The `demo-complete` tag stays withheld.
