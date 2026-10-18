@@ -1,5 +1,6 @@
 const form = document.querySelector('#request-form');
 const nameInput = document.querySelector('#requesterName');
+const nameError = document.querySelector('#name-error');
 const descriptionInput = document.querySelector('#description');
 const status = document.querySelector('#status');
 const errorOutput = document.querySelector('#error');
@@ -39,6 +40,13 @@ try {
 }
 button.disabled = false;
 
+nameInput.addEventListener('input', () => {
+  if (nameInput.value.trim() !== '') {
+    nameError.textContent = '';
+    nameInput.removeAttribute('aria-invalid');
+  }
+});
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   status.textContent = '';
@@ -55,7 +63,13 @@ form.addEventListener('submit', async (event) => {
     form.reset();
     status.textContent = 'Request submitted.';
   } catch (error) {
-    errorOutput.textContent = `Could not submit request: ${error.message}`;
+    if (error.field === 'requesterName') {
+      nameError.textContent = error.message;
+      nameInput.setAttribute('aria-invalid', 'true');
+      nameInput.focus();
+    } else {
+      errorOutput.textContent = `Could not submit request: ${error.message}`;
+    }
   } finally {
     button.disabled = false;
   }

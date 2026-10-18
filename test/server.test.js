@@ -18,12 +18,34 @@ test('creates and lists requests through HTTP', async (t) => {
   const base = await start(t);
   const response = await fetch(`${base}/api/requests`, {
     method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ requesterName: 'Demo' })
+    body: JSON.stringify({ requesterName: '  Demo  ' })
   });
   assert.equal(response.status, 201);
   const { request } = await response.json();
   assert.equal(request.requesterName, 'Demo');
   assert.deepEqual(await (await fetch(`${base}/api/requests`)).json(), { requests: [request] });
+});
+
+test('rejects invalid requester names without creating requests', async (t) => {
+  const base = await start(t);
+  for (const body of [
+    '{}',
+    '{"requesterName":null}',
+    '{"requesterName":7}',
+    '{"requesterName":""}',
+    '{"requesterName":" \\t\\n "}'
+  ]) {
+    const response = await fetch(`${base}/api/requests`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body
+    });
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), {
+      error: { field: 'requesterName', message: 'Requester name is required.' }
+    });
+  }
+  assert.deepEqual(await (await fetch(`${base}/api/requests`)).json(), { requests: [] });
 });
 
 test('transport errors are explicit and do not mutate data', async (t) => {

@@ -6,12 +6,29 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('submits a request using labeled controls and announces success', async ({ page }) => {
-  await page.getByLabel('Requester name').fill('Demo Analyst');
+  await page.getByLabel('Requester name').fill('  Demo Analyst  ');
   await page.getByLabel('Description').fill('Synthetic browser request');
   await page.getByRole('button', { name: 'Submit request' }).click();
   await expect(page.getByRole('status')).toHaveText('Request submitted.');
   await expect(page.locator('#requests')).toContainText('Demo Analyst');
   await expect(page.locator('#requests')).toContainText('Synthetic browser request');
+});
+
+test('shows an accessible name error and clears it after correction', async ({ page }) => {
+  await page.getByRole('button', { name: 'Submit request' }).click();
+  const nameInput = page.getByLabel('Requester name');
+  const nameError = page.getByText('Requester name is required.');
+  await expect(nameError).toBeVisible();
+  await expect(nameInput).toHaveAttribute('aria-invalid', 'true');
+  await expect(nameInput).toBeFocused();
+  await expect(page.locator('#requests li')).toHaveCount(0);
+
+  await nameInput.fill('Demo Analyst');
+  await expect(nameError).toHaveCount(0);
+  await expect(nameInput).not.toHaveAttribute('aria-invalid', 'true');
+  await page.getByRole('button', { name: 'Submit request' }).click();
+  await expect(page.getByRole('status')).toHaveText('Request submitted.');
+  await expect(page.locator('#requests')).toContainText('Demo Analyst');
 });
 
 test('renders user text literally rather than as HTML', async ({ page }) => {
