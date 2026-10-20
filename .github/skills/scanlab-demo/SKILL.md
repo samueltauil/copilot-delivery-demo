@@ -20,6 +20,11 @@ worktree that lacks the uncommitted demonstration.
 5. Pin a completed run, compute another preset, and confirm the baseline run ID
    and parameters remain unchanged.
 
+When native Canvas actions are unavailable in CLI, use
+`npm run scanlab:control -- state`, `run still|gentle|larger`, or `pin RUN_ID`
+against an already-ready session. Do not use CLI to bypass Computer Use
+restrictions on a protected desktop app.
+
 ## Validate or automate readiness
 
 Run `npm run scanlab:check`. Report the actual exit status and failing checks.

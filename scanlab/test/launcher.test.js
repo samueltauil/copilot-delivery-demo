@@ -7,12 +7,29 @@ import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:http';
 import { startBackend, callBackend } from '../../scripts/scanlab-backend.js';
 import { juliaRuntime } from '../../scripts/julia-runtime.js';
+import { controlRequest, summarizeState } from '../../scripts/scanlab-control.js';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const connection = {
   token: '11111111-1111-1111-1111-111111111111',
   instanceId: '22222222-2222-2222-2222-222222222222', pid: 123
 };
+
+test('CLI controls accept only bounded commands and never print connection capabilities or image arrays', () => {
+  assert.deepEqual(controlRequest(['state']), { action: 'state' });
+  assert.deepEqual(controlRequest(['run', 'gentle']), { action: 'run', input: { preset: 'gentle' } });
+  assert.deepEqual(controlRequest(['pin', connection.instanceId]), { action: 'pin', input: { runId: connection.instanceId } });
+  for (const args of [[], ['state', 'extra'], ['run', 'custom'], ['pin', '../file'], ['shell']]) {
+    assert.throws(() => controlRequest(args), /Usage:/);
+  }
+  const summary = summarizeState({
+    status: 'succeeded', token: 'not-for-output',
+    result: { id: 'demo', preset: 'still', pixels: [[1]], figure: {}, token: 'hidden' }
+  });
+  assert.equal(summary.result.id, 'demo');
+  assert.ok(!JSON.stringify(summary).includes('token'));
+  assert.ok(!JSON.stringify(summary).includes('pixels'));
+});
 async function temporary(t) {
   const directory = await mkdtemp(join(tmpdir(), 'scanlab-launcher-'));
   t.after(() => rm(directory, { recursive: true, maxRetries: 5, retryDelay: 100 }));

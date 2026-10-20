@@ -14,6 +14,7 @@
     "demo:prepare": "node scripts/prepare-web-demo.js",
     "scanlab": "node scripts/scanlab.js start",
     "scanlab:setup": "node scripts/scanlab.js setup",
+    "scanlab:control": "node scripts/scanlab-control.js",
     "scanlab:test": "node scripts/scanlab.js test && node --test scanlab/test/*.test.js",
     "scanlab:e2e": "playwright test --config=scanlab/playwright.config.js",
     "scanlab:check": "npm run scanlab:test && npm run scanlab:e2e",

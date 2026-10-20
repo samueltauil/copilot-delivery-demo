@@ -40,6 +40,14 @@ async function readConnection(file) {
   }
 }
 
+export async function connectBackend(root) {
+  const connection = await readConnection(join(root, '.demo-runs', 'scanlab', 'active.json'));
+  if (!connection) throw new Error('No active ScanLab session. Run npm run scanlab first and wait for readiness.');
+  const state = await callBackend(connection, 'state');
+  if (state.instanceId !== connection.instanceId) throw new Error('The recorded session identity does not match the server.');
+  return connection;
+}
+
 export async function startBackend(root, {
   reuse = true, log = (message) => console.error(message),
   stateDirectory = join(root, '.demo-runs', 'scanlab')
