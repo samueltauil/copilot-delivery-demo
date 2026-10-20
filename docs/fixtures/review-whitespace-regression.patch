@@ -1,12 +1,12 @@
-diff --git a/src/requests.js b/src/requests.js
---- a/src/requests.js
-+++ b/src/requests.js
-@@ -20,7 +20,7 @@
-       if (input.description !== undefined && typeof input.description !== 'string') {
-         throw new InputError('Description must be text.', 'description');
-       }
--      if (typeof input.requesterName !== 'string' || !input.requesterName.trim()) {
-+      if (typeof input.requesterName !== 'string' || !input.requesterName) {
-         throw new InputError('Requester name is required.', 'requesterName');
-       }
-       const request = {
+diff --git a/src/requests.jl b/src/requests.jl
+--- a/src/requests.jl
++++ b/src/requests.jl
+@@ -27,7 +27,7 @@
+     description isa AbstractString || throw(InputError("Description must be text.", "description"))
+     name = get(input, "requesterName", nothing)
+-    if !(name isa AbstractString) || isempty(trim_name(name))
++    if !(name isa AbstractString) || isempty(name)
+         throw(InputError("Requester name is required.", "requesterName"))
+     end
+     request = (
+         id = string(uuid4()),

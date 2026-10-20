@@ -1,0 +1,26 @@
+diff --git a/src/scanlab/state.jl b/src/scanlab/state.jl
+--- a/src/scanlab/state.jl
++++ b/src/scanlab/state.jl
+@@ -80,7 +80,7 @@
+         get(input, "runId", nothing) == state.result["id"] ||
+             throw(ActionError(409, "The requested result is not the latest completed run."))
+-        state.baseline = deepcopy(state.result)
++        throw(ActionError(501, "Baseline comparison is not implemented in this teaching start."))
+     end
+     snapshot(state)
+ end
+ 
+diff --git a/public/scanlab/app.js b/public/scanlab/app.js
+--- a/public/scanlab/app.js
++++ b/public/scanlab/app.js
+@@ -52,7 +52,7 @@
+   $('run').textContent = running ? 'Computing…' : 'Run experiment';
+   $('preset').disabled = running || requesting;
+-  $('pin').disabled = running || requesting || !state.result;
++  $('pin').disabled = true;
+   $('export').disabled = running || requesting || !state.result;
+-  $('zoom').disabled = !state.result;
+-  $('reset-view').disabled = !state.result;
++  $('zoom').disabled = true;
++  $('reset-view').disabled = true;
+   const labels = {

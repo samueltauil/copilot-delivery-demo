@@ -6,12 +6,12 @@ title: "[demo RUN_ID] Require requester name"
 
 ## Run and starting point
 Run ID: RUN_ID
-Base branch: demo/RUN_ID/base (from demo-start)
+Base branch: demo/RUN_ID/base (committed from a fresh Julia start snapshot)
 Actual base SHA: RECORD_BEFORE_ASSIGNMENT
 Head branch: RECORD_OBSERVED_AGENT_BRANCH
 
 ## Business problem
-An unnamed request can currently be submitted. Require requesterName; reject
+An unnamed synthetic study-review request can currently be submitted. Require requesterName; reject
 missing, null, non-string, empty, and whitespace-only values with HTTP 400 and
 `Requester name is required.` Create nothing on rejection. Trim valid names.
 
@@ -21,8 +21,9 @@ missing, null, non-string, empty, and whitespace-only values with HTTP 400 and
 3. Corrected input clears the error and allows submission.
 
 ## Scope and exclusions
-Request store/server, name UI feedback, and tests only. No unrelated refactors,
-dependencies, publishing, policies, or merges. Preserve description behavior.
+Julia request store/server, name UI feedback, and tests only. No unrelated
+refactors, dependencies, publishing, policies, or merges. Preserve description
+behavior and the JuliaHealth study snapshot. Do not use the legacy Node tags.
 
 ## Validation
 `npm test`, `npm run test:e2e`, `npm run check`.

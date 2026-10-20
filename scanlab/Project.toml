@@ -1,0 +1,14 @@
+[deps]
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+KomaMRICore = "4baa4f4d-2ae9-40db-8331-a7d1080e3f4e"
+KomaMRIPlots = "76db0263-63f3-4d26-bb9a-5dba378db904"
+MRIReco = "bdf86e05-2d2b-5731-a332-f3fe1f9e047f"
+
+[compat]
+HTTP = "1"
+JSON = "1"
+KomaMRICore = "=0.14.0"
+KomaMRIPlots = "=0.14.0"
+MRIReco = "=0.9.2"
+julia = "1.10"

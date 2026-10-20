@@ -1,25 +1,24 @@
 # Requirement to evidence
 
-Runtime implementation candidate: 6713e7f. Evidence status is recorded separately
-in docs/evidence/rehearsal.md; a path is not itself proof of execution.
+Paths identify executable checks, not proof that they ran. Actual results are
+recorded in [rehearsal.md](evidence/rehearsal.md).
 
-| Requirement | Implementation / artifact | Automated or observed evidence |
+| Requirement | Implementation | Evidence |
 |---|---|---|
-| Missing/null/non-string/empty/whitespace names reject without mutation | src/requests.js:createRequestStore/create and src/server.js InputError handling | test/requests.test.js invalid-name matrix; test/server.test.js invalid-name and whitespace regression tests |
-| Exact field/error/status | server JSON error handling and public/app.js:setNameError | API deep equality and browser exact-message/aria/focus assertions |
-| Valid names trimmed, accepted, listed | request creation and GET/POST routing | store Unicode case, HTTP valid-name test and browser correction test |
-| Optional description, bad payload/media/body errors | store.create, server.parseBody and routing | baseline store test; transport tests (400/405/413/415), no mutation |
-| Store isolation and unique server IDs | createRequestStore and createApp factories | store copy/isolation/ID test; per-test ephemeral server instances |
-| Static routes, text rendering, explicit unexpected errors | fixed asset map, textContent, logged HTTP 500 | asset/method tests, unexpected-error logger test, literal HTML browser test |
-| Accessible error/correction and keyboard flow | public/index.html labels/status, app.setNameError | browser blank/correction/focus/Tab/Enter test; human screen-reader pass still needed |
-| Network/server failures preserve input, no false success | app.readResponse and submit catch | browser network-failure and server-field-error tests |
-| Small controlled before/after | demo-start 39d7a6c; approved change in docs/approved-change.md | initial 10-test/3-browser baseline; four expected red rule tests, then 14/5 green |
-| Reusable BA artifacts | docs/ba/templates.md and worked-example.md | human approval of real production policy not claimed |
-| Interface-independent prompts and handoff | docs/prompts, docs/handoff-template.md, docs/harnesses | authoring CLI evidence only; VS Code/app interactive paths not rehearsed |
-| Repeatable web drafts/templates | scripts/prepare-web-demo.js, .github issue/PR templates | test/prepare-web-demo.test.js plus two run IDs; no network/Git mutation |
-| Manual/automatic review scenarios | docs/web-scenarios.md and isolated fixture patches | local fixture failure/correction replay; hosted triggers not executed |
-| Governance and cost honesty | docs/governance-and-usage.md | no tenant access or invented metrics; separate admin verification needed |
-| Full source-brief coverage | docs/facilitator-playbook.md coverage matrix C01-C45 | eight slide cards, seven prompts, explicit appendix/deferred dispositions |
+| Reuse JuliaHealth rather than recreate scientific tools | `scripts/setup.jl`, `src/study.jl` | Actual HealthSampleData download and OCC person/cohort helper integration |
+| Synthetic data only; missing/changed input fails | Dataset SHA-256 check before SQLite opens | `test/study.jl`: missing file is not created, invalid file rejected, real dataset hash preserved |
+| Distinct people, not condition events | Existing OCC cohort helper, aggregate-only snapshot | Tiny repeated-event fixture gives 2 of 3; pinned dataset gives 1,677 of 2,694; independent SQL cross-check |
+| No fabricated results on frontend failure | `public/app.js` study fetch/shape check | `e2e/study.spec.js`: network, server and malformed-response cases |
+| Name matrix rejects with exact status/error and no mutation | `src/requests.jl`, `src/server.jl` | `test/requests.jl`, `test/server.jl`: missing/null/non-string/blank/Unicode cases |
+| Valid name trimmed and listed, unique server ID | Request store and GET/POST handlers | Store identity/isolation checks, exact HTTP response shape, browser correction |
+| Accessible inline error/focus and keyboard correction | `public/index.html`, `public/app.js` | Original five `e2e/request-submission.spec.js` checks retained |
+| Description/transport behavior preserved | Input validation and HTTP.jl adapter | Tests for 400/405/413/415, exact field errors, 16 KiB bound, chunked requests |
+| Fixed assets, literal text, explicit failures | Asset allowlist, `textContent`, logged 500 | API route/header checks, original HTML rendering and network-failure tests |
+| Repeatable before/after without checkpoint mutation | `scripts/prepare-local-demo.js`, Julia fixture | `test/prepare-local-demo.test.js`: exclusions, unchanged tests, reverse-patch equality, unsafe/reused run rejection |
+| Local-only GitHub preparation | `scripts/prepare-web-demo.js`, issue/PR templates | `test/prepare-web-demo.test.js`; manifests start with no hosted observations |
+| Same checks in CI | `.github/workflows/julia-demo.yml` | Pinned actions and local command parity; hosted run requires separate approval/evidence |
+| Small BA handoff | `docs/ba/worked-example.md`, prompt cards | Human-reviewed draft criteria linked to tests; no clinical approval claimed |
 
-The presenter must distinguish observed tests from proposed remote actions,
-remaining manual accessibility work, and unobserved interface compatibility.
+The old Node assertions were migrated to Julia or retained in Playwright;
+the old implementation is available in immutable Git history, not duplicated
+as a second runtime in the new app.

@@ -1,7 +1,9 @@
 # Web-first scenarios: templates are not triggers
 
-Draft generation does not verify that the referenced checkpoint tags exist
-in the target repository.
+Draft generation does not verify that the supplied branches exist in the
+target repository. Julia start/reference names are snapshot roles, not tags;
+commit the chosen prepared snapshot to a fresh branch before hosted use.
+The old Node tags and hosted exercises are historical, not this Julia demo.
 
 No hosted execution is included in local preparation. Publishing, creating
 issues/PRs, agent assignment, reviews, workflow execution, policy edits, and
@@ -28,7 +30,8 @@ the facilitator records real evidence.
 
 ## W1: issue -> implementation PR
 
-Use a NEW run base at demo-start (not completed main). Review the populated
+Use a NEW run base committed from a Julia start snapshot (not completed main).
+Record the actual source and SHA. Review the populated
 validation issue, obtain scope/remote/agent approval, create the issue, then use
 Copilot assignment and select the correct starting/base branch. Confirm its
 actual SHA; stop if base selection is unavailable rather than silently using main.
@@ -51,6 +54,19 @@ Copilot may miss the seeded defect; tests are deterministic evidence. After
 approval, correct it, validate, and request re-review. Replies to review comments
 are not a reliable instruction channel for the reviewer. A separately approved
 implementation task is different from reviewing.
+
+## CI: the same evidence on GitHub
+
+The local `.github/workflows/julia-demo.yml` definition runs on pull requests
+or manual dispatch after approved publication. It pins Julia 1.10.12, Node
+22.20.0 and action commits; repository permission is `contents: read` and checkout
+does not persist credentials. No secrets, deployment or review requests are used.
+
+It installs the pinned dependencies/browser, fetches the checksum-pinned
+synthetic data during setup, then runs `npm run check`. Initial network access
+is required. Automatic tests of a deliberately broken start/review fixture must
+fail; do not change CI to conceal that result. Hosted execution is not verified
+by the local command results.
 
 ## W3: automatic review
 

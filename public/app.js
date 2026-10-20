@@ -54,7 +54,24 @@ try {
 } catch (error) {
   errorOutput.textContent = `Could not load requests: ${error.message}`;
 }
-button.disabled = false;
+try {
+  const { study } = await readResponse(await fetch('/api/study'));
+  if (study?.dataset !== 'Eunomia' || study.synthetic !== true ||
+      !Number.isInteger(study.totalPeople) || !Number.isInteger(study.cohortPeople) ||
+      study.cohortPeople < 0 || study.totalPeople < study.cohortPeople) {
+    throw new Error('Study response is invalid.');
+  }
+  document.querySelector('#total-people').textContent = study.totalPeople.toLocaleString('en-US');
+  document.querySelector('#cohort-people').textContent = study.cohortPeople.toLocaleString('en-US');
+  document.querySelector('#study-summary').hidden = false;
+  button.disabled = false;
+} catch (error) {
+  const studyError = document.querySelector('#study-error');
+  studyError.textContent = `Could not load the study snapshot: ${error.message}`;
+  studyError.hidden = false;
+} finally {
+  document.querySelector('#study-loading').hidden = true;
+}
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();

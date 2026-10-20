@@ -7,7 +7,7 @@ title: "[demo RUN_ID] Review whitespace regression"
 ## Run and starting point
 Run ID: RUN_ID
 Scenario: w2 manual / w3 automatic
-Base branch/SHA: RECORD_COMPLETED_CHECKPOINT
+Base branch/SHA: RECORD_COMMITTED_JULIA_REFERENCE
 Head branch and review PR: NOT_CREATED
 
 ## Exercise
@@ -21,7 +21,7 @@ The completed application and canonical checkpoints must stay unchanged.
 3. Approved correction restores passing checks; human evaluates the result.
 
 ## Validation
-`node --test --test-name-pattern="whitespace regression" test/server.test.js`
+`npm test` (Julia name/whitespace assertions must fail with the fixture)
 then `npm run check` after correction. Never weaken or skip the failing test.
 
 ## Approval

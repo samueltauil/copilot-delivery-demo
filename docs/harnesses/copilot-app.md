@@ -1,5 +1,41 @@
 # GitHub Copilot desktop app adapter
 
+## ScanLab: current checkout and existing Canvas
+
+The installed app's workspace picker distinguishes **Current checkout** from
+**New worktree**. Selecting **This computer** is not enough: a new worktree uses
+committed history and will not contain the uncommitted migration/ScanLab.
+
+1. Add the existing local repository folder, then start a new session.
+2. Set **Workspace -> Current checkout**. Verify the actual working directory.
+3. Prepare the numerical environment using `npm run scanlab:setup` before
+   presenting. Start `npm run scanlab` and wait for its real ready message.
+4. Ask: `Open the existing scanlab canvas. Do not scaffold or edit anything.`
+5. On a missing extension, use `extensions_reload` once and inspect `scanlab`.
+   Read its actual error instead of repeatedly creating another session.
+6. Run a preset, pin its completed result, run another, and compare run IDs.
+   The Canvas uses the same local API and rendering as the browser.
+
+The project extension is under `.github/extensions/scanlab`. It uses the
+installed host's `@github/copilot-sdk/extension` module resolver; no application
+AI SDK installation or secret is needed. It starts computation only when the
+Canvas is opened or an action explicitly requests the backend.
+
+When the Canvas attaches to an already-running CLI-owned server, closing the
+Canvas does not kill that server. When the Canvas owns the server, its close
+handler stops only that process. A failed startup is explicit.
+
+Computer Use can be enabled with the app's documented controls, but the host
+may prohibit controlling GitHub Copilot itself. That safety restriction is
+not bypassed. A native Canvas action is not a claim of verified GUI clicking.
+Actual browser, extension-action, visual and human checks are recorded separately.
+
+Use [the local readiness definition](../scanlab-readiness.md) for a manual-only
+automation. It reports checks and failures; it must not auto-edit code or install
+dependencies. Cloud automation and publication remain separately approved.
+
+## Request-desk and general adapter
+
 This means the GitHub Copilot app, not GitHub Desktop or Microsoft Copilot.
 Verify installed app/version, account policy, selected model, repository access,
 and the actual worktree/branch. Do not assume CLI access grants app access.

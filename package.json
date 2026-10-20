@@ -5,11 +5,19 @@
   "type": "module",
   "engines": { "node": ">=22.20.0" },
   "scripts": {
-    "start": "node src/server.js",
-    "test": "node --test test/*.test.js",
+    "setup": "node scripts/julia.js setup",
+    "start": "node scripts/julia.js start",
+    "test": "node scripts/julia.js test && node --test test/*.test.js",
     "test:e2e": "playwright test",
     "check": "npm test && npm run test:e2e",
-    "demo:prepare": "node scripts/prepare-web-demo.js"
+    "demo:local": "node scripts/prepare-local-demo.js",
+    "demo:prepare": "node scripts/prepare-web-demo.js",
+    "scanlab": "node scripts/scanlab.js start",
+    "scanlab:setup": "node scripts/scanlab.js setup",
+    "scanlab:test": "node scripts/scanlab.js test && node --test scanlab/test/*.test.js",
+    "scanlab:e2e": "playwright test --config=scanlab/playwright.config.js",
+    "scanlab:check": "npm run scanlab:test && npm run scanlab:e2e",
+    "check:all": "npm run check && npm run scanlab:check"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0"

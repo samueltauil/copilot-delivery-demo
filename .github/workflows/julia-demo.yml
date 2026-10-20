@@ -1,0 +1,37 @@
+name: JuliaHealth demo checks
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    env:
+      JULIA_DEPOT_PATH: ${{ github.workspace }}\.demo-runs\julia-depot
+      JULIA_NUM_PRECOMPILE_TASKS: '2'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: julia-actions/setup-julia@4c0cb0fce8556fdb04a90347310e5db8b1f98fb9 # v2
+        with:
+          version: '1.10.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.20.0'
+      - run: npm ci
+      - run: npx playwright install chromium
+      - name: Prepare the checksum-pinned synthetic dataset
+        run: npm run setup
+        env:
+          DATADEPS_ALWAYS_ACCEPT: 'true'
+      - run: npm run check
+      - name: Prepare the pinned live imaging components
+        run: npm run scanlab:setup
+      - name: Validate ScanLab science, state, Canvas adapter and browser
+        run: npm run scanlab:check

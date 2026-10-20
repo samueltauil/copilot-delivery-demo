@@ -3,19 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Request desk | Copilot demo</title>
+  <title>Synthetic research desk | JuliaHealth + Copilot</title>
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
   <main>
     <header><p class="eyebrow">Synthetic data only / Local demonstration</p>
-      <h1>A small request. A visible workflow.</h1>
-      <p>Submit a request, see the result, and connect business intent to evidence.</p>
+      <h1>A small study. A clear request.</h1>
+      <p>You are coordinating a research review. Check the synthetic study snapshot,
+        then submit a request for a colleague to review it.</p>
     </header>
+    <section class="study-context" aria-labelledby="study-heading">
+      <p class="eyebrow">JuliaHealth / Eunomia / Synthetic OMOP data</p>
+      <h2 id="study-heading">One population, one tutorial cohort</h2>
+      <p>How many distinct people have a recorded strep-throat condition in this
+        synthetic dataset? Repeated records for one person count only once.</p>
+      <p id="study-loading">Loading the verified study snapshot...</p>
+      <dl id="study-summary" hidden>
+        <div><dt>Synthetic people</dt><dd id="total-people"></dd></div>
+        <div><dt>People in the tutorial cohort</dt><dd id="cohort-people"></dd></div>
+      </dl>
+      <p id="study-error" role="alert" hidden></p>
+      <p class="study-note">Concept 28060, following the JuliaHealth tutorial.
+        This is a descriptive count, not a diagnosis, prevalence estimate, or clinical recommendation.
+        No patient-level data is displayed.</p>
+      <p class="study-note">Reused, not rebuilt:
+        <a href="https://github.com/JuliaHealth/HealthSampleData.jl">HealthSampleData.jl</a> supplies the data;
+        <a href="https://juliahealth.org/OMOPCDMCohortCreator.jl/stable/tutorials/beginner_tutorial/">OMOPCDMCohortCreator.jl</a>
+        selects the cohort. Julia computes the snapshot before the server starts.</p>
+    </section>
     <div class="columns">
       <section aria-labelledby="form-heading">
-        <h2 id="form-heading">Create a request</h2>
+        <h2 id="form-heading">Request a review of this snapshot</h2>
+        <p>A request records your coordination task. It does not rerun the study or contact anyone.</p>
         <form id="request-form" novalidate>
           <label for="requesterName">Requester name</label>
           <input id="requesterName" name="requesterName" autocomplete="name" aria-required="true">
@@ -33,7 +54,8 @@
         <ul id="requests"></ul>
       </section>
     </div>
-    <footer>Data is kept in memory and disappears when the server restarts. No real customer information.</footer>
+    <footer>Use invented requester names only. Requests disappear on restart; the verified
+      synthetic dataset stays in the local cache. No authentication, real patient data, or clinical use.</footer>
   </main>
 </body>
 </html>

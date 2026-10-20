@@ -9,6 +9,10 @@ function validRef(value) {
     !value.split('/').some((part) => !part || part.startsWith('.') || part.endsWith('.') || part.endsWith('.lock'));
 }
 
+export function validRun(value) {
+  return typeof value === 'string' && /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/.test(value);
+}
+
 export function issueLink(repo, title, body, template, limit = 2000) {
   const url = new URL(`https://github.com/${repo}/issues/new`);
   url.searchParams.set('template', template);
@@ -26,7 +30,7 @@ export async function prepareWebDemo(options, root = join(dirname(fileURLToPath(
   if (typeof repo !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9-]{0,38}\/[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/.test(repo)) {
     throw new Error('Use --repo OWNER/REPO with ordinary GitHub names.');
   }
-  if (typeof run !== 'string' || !/^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/.test(run)) {
+  if (!validRun(run)) {
     throw new Error('Use a unique --run of 1-40 lowercase letters, digits, or internal hyphens.');
   }
   if (!['w1', 'w2', 'w3'].includes(scenario)) throw new Error('Use --scenario w1, w2, or w3.');
@@ -35,9 +39,9 @@ export async function prepareWebDemo(options, root = join(dirname(fileURLToPath(
   const title = `[demo ${run}] ${implementation ? 'Require requester name' : 'Review whitespace validation regression'}`;
   const body = [
     `## Run\n${run} / ${scenario}\nBase: ${base}\nHead (proposed): ${head}`,
-    `## Starting point\n${implementation ? 'demo-start' : 'demo-candidate + isolated review fixture'}; record the actual SHA before execution.`,
+    `## Starting point\n${implementation ? 'julia-start prepared snapshot' : 'julia-reference prepared snapshot + isolated review fixture'}; these are snapshot roles, not existing Git tags. Record the actual committed base SHA before execution.`,
     '## Business rule\nReject missing, null, non-string, empty, or whitespace-only requesterName with HTTP 400 and "Requester name is required."; create nothing. Trim valid names; accept with HTTP 201.',
-    '## Scope\nRequest store/server, accessible name feedback, and tests only. No unrelated refactors, dependencies, publication, policy changes, or merge.',
+    '## Scope\nJulia request store/server, accessible name feedback, and tests only. Preserve the JuliaHealth synthetic study snapshot. No unrelated refactors, dependencies, publication, policy changes, or merge.',
     '## Acceptance\nInvalid creates nothing. Valid is trimmed and listed. Corrected input clears the accessible error and submits.',
     '## Validation\nnpm test\nnpm run test:e2e\nnpm run check',
     '## Approval\nDraft only. Human must approve publication and each agent/review trigger separately. No automatic assignment.',
@@ -49,7 +53,7 @@ export async function prepareWebDemo(options, root = join(dirname(fileURLToPath(
   const prBody = `# ${title}\n\nScenario: ${scenario}\nRun: ${run}\nBase: ${base}\nHead: ${head}\n\nIssue: NOT CREATED\nApproval: NOT RECORDED\nValidation: NOT RUN\nReview: NOT REQUESTED\n\nUse .github/PULL_REQUEST_TEMPLATE.md. Human must verify the refs and approve each remote action. Do not merge into canonical checkpoints.\n`;
   const manifest = {
     run, scenario, repo, base, head,
-    startingCheckpoint: implementation ? 'demo-start' : 'demo-candidate',
+    startingCheckpoint: implementation ? 'julia-start' : 'julia-reference',
     startingSha: null,
     state: 'prepared-local',
     issue: null, pullRequest: null, reviewedCommit: null, approvals: [],

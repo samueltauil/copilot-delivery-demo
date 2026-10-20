@@ -7,6 +7,12 @@ header { max-width: 740px; margin-bottom: 2rem; }
 h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.12; }
 h2 { margin-top: 0; font-size: 1.3rem; }
 .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.study-context { margin-bottom: 1.5rem; border-top: 4px solid #17566c; }
+#study-summary { display: flex; flex-wrap: wrap; gap: 2rem; }
+#study-summary[hidden] { display: none; }
+dt, .study-note { color: #4b5f70; }
+dd { margin: .25rem 0 0; font-size: 2rem; font-weight: 700; color: #17566c; }
+a { color: #17566c; }
 section { padding: 1.75rem; border: 1px solid #cdd8e2; border-radius: 1rem; background: white; }
 label { display: block; font-weight: 650; margin: 1rem 0 .4rem; }
 label span, footer { color: #4b5f70; font-weight: 400; }
@@ -15,7 +21,7 @@ button { margin-top: 1rem; padding: .8rem 1.1rem; font: inherit; font-weight: 65
 button:disabled { opacity: .6; cursor: wait; }
 :focus-visible { outline: 3px solid #875000; outline-offset: 3px; }
 [aria-invalid="true"] { border: 2px solid #a51b29; }
-.field-error, #error { color: #a51b29; }
+.field-error, #error, #study-error { color: #a51b29; }
 .field-error:empty { display: none; }
 #status { color: #185d35; }
 ul { padding: 0; list-style: none; }

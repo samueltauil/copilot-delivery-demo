@@ -2,11 +2,12 @@
 
 ## Business summary
 
-Requesters receive a clear name error before an unnamed request is accepted.
+Research coordinators see a synthetic JuliaHealth study snapshot and receive a
+clear name error before an unnamed review request is accepted.
 
 ## Five business steps
 
-1. Open the request form.
+1. Open the request form and read the synthetic population/cohort counts.
 2. Enter a requester name and optional description.
 3. Submit; correct the name if an error is shown.
 4. Receive confirmation only after the server accepts the request.
@@ -21,7 +22,7 @@ the request before submitting it.
 
 | Criterion | Scenario | Evidence |
 |---|---|---|
-| Invalid name creates no request | Submit missing/null/non-string/empty/whitespace input; API returns 400 with the exact message; UI associates/focuses the error | createRequestStore in src/requests.js; invalid-name and whitespace tests in test/server.test.js; accessible-error test in e2e/request-submission.spec.js |
+| Invalid name creates no request | Submit missing/null/non-string/empty/whitespace input; API returns 400 with the exact message; UI associates/focuses the error | create_request! in src/requests.jl; invalid-name and whitespace tests in test/server.jl; accessible-error test in e2e/request-submission.spec.js |
 | Valid name is accepted, trimmed and listed | Submit `  Demo Analyst  `; API returns 201 and subsequent list contains `Demo Analyst` | valid-name HTTP test and store Unicode-trimming test; corrected-input browser test |
 | Corrected input clears the error and submits | After rejection, enter a valid name; inline error clears, keyboard submission works, confirmation/list update follow server success | accessible-error correction/browser keyboard test |
 
@@ -38,7 +39,10 @@ Automated Chromium assertions cover these interactions, not a full accessibility
 audit or actual screen-reader announcement quality. Human accessibility review
 and complete interactive harness rehearsals remain separate.
 
-Data is synthetic and in memory; this is not a production release.
+Requests are synthetic and in memory; the verified synthetic Eunomia dataset
+is cached locally. Its descriptive counts are not clinical conclusions.
+Submitting a request does not rerun analysis or contact a real reviewer.
+This is not a production release.
 The user confirmed this demonstration rule, not a customer production policy.
 
 ## Questions for developers/business owners

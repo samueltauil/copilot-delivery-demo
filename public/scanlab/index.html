@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ScanLab · A virtual imaging experiment</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script defer src="/plotly.js"></script>
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">ScanLab <span>Synthetic research only</span></p>
+      <h1>Same object.<br>One condition changed.</h1>
+      <p>Explore how controlled motion changes a simulated acquisition. Pin a result, change the scenario, and compare the evidence.</p>
+    </header>
+    <section class="controls" aria-label="Experiment controls">
+      <label for="preset">Motion scenario</label>
+      <select id="preset" disabled>
+        <option value="still">No motion</option>
+        <option value="gentle">Controlled shift · 8 mm</option>
+        <option value="larger">Larger shift · 16 mm</option>
+      </select>
+      <button id="run" disabled>Run experiment</button>
+      <button id="pin" class="secondary" disabled>Pin baseline</button>
+      <button id="export" class="secondary" disabled>Save comparison</button>
+    </section>
+    <p id="status" role="status" aria-live="polite">Connecting to the live experiment...</p>
+    <p id="error" role="alert"></p>
+    <div class="images">
+      <section class="image-card" aria-labelledby="baseline-heading">
+        <div class="card-heading"><h2 id="baseline-heading">Pinned baseline</h2><span id="baseline-label">Not pinned</span></div>
+        <p id="baseline-empty" class="empty">Run an experiment, then pin it to hold your reference still.</p>
+        <div id="baseline-image" class="plot" role="img" aria-label="Pinned synthetic acquisition" hidden></div>
+        <p id="baseline-caption" class="caption"></p>
+      </section>
+      <section class="image-card" aria-labelledby="current-heading">
+        <div class="card-heading"><h2 id="current-heading">Current result</h2><span id="current-label">Awaiting a live run</span></div>
+        <p id="current-empty" class="empty">No preloaded results.<br>Run a live experiment to begin.</p>
+        <div id="current-image" class="plot" role="img" aria-label="Current synthetic acquisition" hidden></div>
+        <p id="current-caption" class="caption"></p>
+      </section>
+    </div>
+    <section class="comparison-controls" aria-label="Comparison view">
+      <p>One fixed intensity scale. Synchronized views. No clinical quality score.</p>
+      <label for="zoom">Shared zoom</label>
+      <input id="zoom" type="range" min="1" max="3" step="0.25" value="1" disabled>
+      <output id="zoom-label" for="zoom">1×</output>
+      <button id="reset-view" class="secondary" disabled>Reset view</button>
+    </section>
+    <details>
+      <summary>How this experiment works</summary>
+      <p>An analytical geometric phantom, not a patient image. One fixed echo-planar acquisition. Three controlled translation presets. Every Run computes a new result on this machine.</p>
+      <p>The numerical pipeline reuses <a href="https://github.com/JuliaHealth/KomaMRI.jl">KomaMRI</a>, MRIReco and existing plotting components. Julia performs the calculation; Copilot helps improve the workflow.</p>
+      <pre id="provenance">Run an experiment to inspect its parameters and provenance.</pre>
+    </details>
+    <footer>Research and education only. No patient-derived data, diagnosis, scanner control, or clinical recommendation.</footer>
+  </main>
+</body>
+</html>

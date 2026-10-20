@@ -8,10 +8,10 @@ export default defineConfig({
   reporter: 'list',
   use: { baseURL: 'http://127.0.0.1:43179', browserName: 'chromium' },
   webServer: {
-    command: 'node src/server.js',
+    command: 'node scripts/julia.js start',
     url: 'http://127.0.0.1:43179',
     env: { PORT: '43179' },
     reuseExistingServer: false,
-    timeout: 15000
+    timeout: 120000
   }
 });

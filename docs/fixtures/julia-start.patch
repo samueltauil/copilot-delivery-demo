@@ -1,0 +1,78 @@
+diff --git a/src/requests.jl b/src/requests.jl
+--- a/src/requests.jl
++++ b/src/requests.jl
+@@ -28,10 +28,7 @@
+     name = get(input, "requesterName", nothing)
+-    if !(name isa AbstractString) || isempty(trim_name(name))
+-        throw(InputError("Requester name is required.", "requesterName"))
+-    end
+     request = (
+         id = string(uuid4()),
+-        requesterName = trim_name(name),
++        requesterName = name isa AbstractString ? String(name) : name,
+         description = String(description),
+     )
+     lock(store.lock) do
+diff --git a/public/app.js b/public/app.js
+--- a/public/app.js
++++ b/public/app.js
+@@ -6,24 +6,6 @@
+ const list = document.querySelector('#requests');
+ const empty = document.querySelector('#empty');
+ const button = form.querySelector('button');
+-const nameError = document.querySelector('#name-error');
+-
+-function setNameError(message) {
+-  nameError.textContent = message;
+-  if (message) {
+-    nameInput.setAttribute('aria-invalid', 'true');
+-    nameInput.setAttribute('aria-describedby', 'name-error');
+-    nameInput.focus();
+-  } else {
+-    nameInput.removeAttribute('aria-invalid');
+-    nameInput.removeAttribute('aria-describedby');
+-  }
+-}
+-
+-nameInput.addEventListener('input', () => {
+-  if (nameInput.value.trim()) setNameError('');
+-});
+-
+ function requestItem(request) {
+   const item = document.createElement('li');
+   const name = document.createElement('strong');
+@@ -78,11 +60,6 @@
+   status.textContent = '';
+   errorOutput.textContent = '';
+-  if (!nameInput.value.trim()) {
+-    setNameError('Requester name is required.');
+-    return;
+-  }
+-  setNameError('');
+   button.disabled = true;
+   try {
+     const body = await readResponse(await fetch('/api/requests', {
+       method: 'POST',
+@@ -97,10 +74,6 @@
+   } catch (error) {
+-    if (error.field === 'requesterName') {
+-      setNameError(error.message);
+-    } else {
+-      errorOutput.textContent = `Could not submit request: ${error.message}`;
+-    }
++    errorOutput.textContent = `Could not submit request: ${error.message}`;
+   } finally {
+     button.disabled = false;
+   }
+ });
+diff --git a/public/index.html b/public/index.html
+--- a/public/index.html
++++ b/public/index.html
+@@ -43,6 +43,5 @@
+           <label for="requesterName">Requester name</label>
+-          <input id="requesterName" name="requesterName" autocomplete="name" aria-required="true">
+-          <p class="field-error" id="name-error"></p>
++          <input id="requesterName" name="requesterName" autocomplete="name">
+           <label for="description">Description <span>(optional)</span></label>
+           <textarea id="description" name="description" rows="4"></textarea>
+           <button type="submit" disabled>Submit request</button>

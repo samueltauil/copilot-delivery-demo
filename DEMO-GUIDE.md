@@ -1,247 +1,145 @@
-# Copilot demo: one task, one clear flow
+# ScanLab and the request-desk learning exercise
 
-**Follow this page.** The form is just a prop. The story is how Copilot helps a
-developer and a Business Analyst understand, plan, deliver, and review work.
+**For the primary HLS presentation, follow [ScanLab](docs/scanlab-guide.md).**
+It leads with a live synthetic imaging result, reveals Copilot's contribution,
+and introduces Julia afterward. Read the current evidence before claiming
+actual app/automation readiness.
 
-**Opening:** "We will improve one small workflow. Watch what we ask Copilot to
-do, where we approve it, and what evidence we check."
+The earlier request-desk walkthrough below is preserved as the secondary
+learning exercise. Its commands, API contract, and name-validation task remain
+unchanged. Do not mix its checkpoints with ScanLab's comparison exercise.
 
-**Flow:** Ask -> Plan -> Implement -> Explain -> Delegate -> Review -> Control.
+## Request desk: one study, one request, one verified change
+
+**Audience:** HLS business analysts, research/delivery teams, and developers.
+**Target:** a 10-15 minute local story; rehearse timing on your machine.
+**Opening:** "A research coordinator has a small question. We will use existing
+JuliaHealth tools, then watch Copilot help us improve one part of the workflow."
+
+Use one VS Code window, one browser tab, and this page. Do not tour folders,
+install tools live, or introduce OMOP internals before showing the outcome.
+There is no AI service inside the application: Copilot helps build and review it.
 
 ## Before the audience joins
 
-Use the **presenter setup** at the end of this page. Open one browser tab for the
-form, one VS Code window for the starting worktree, and the approved GitHub demo
-repository if available. Do not tour folders or explain the application's stack.
+1. Complete [setup](README.md#set-up-before-presenting) and the reference checks.
+2. Prepare a fresh start/reference pair using [the repeatability steps](docs/demo-lifecycle.md).
+   Keep the verified dataset and package caches outside the snapshots.
+3. Open the **start** snapshot in VS Code, initialize its local Git baseline as
+   documented, and run `npm start`. Open http://127.0.0.1:3000.
+4. Rehearse one blank submission: it is deliberately accepted here.
+   Restart to clear that rehearsal request before presenting.
+5. Verify actual Copilot mode, tool permissions, account access and installed
+   Julia extension. Do not assume that a prompt enforces read-only access.
 
-Local application checks have passed. Product instructions below were checked
-against official documentation on **October 16, 2026**; that is not a claim that
-every interface or hosted action was exercised. Exact sources and limits:
-`docs\official-docs-validation.md`.
+Start's name-rule checks are deliberately red. Reference must be green.
+Neither the legacy Git tags nor the hosted Node-era rehearsal prove this
+Julia flow is ready. Use the current [evidence record](docs/evidence/rehearsal.md).
 
-No remote has been published by this task. Steps 5-7 are live demonstrations
-only after separately approved GitHub setup. Otherwise explain the controls and
-say "not exercised here"; do not present a draft or illustration as a live result.
+## 1. Show the question
 
-**Checkpoints:** `demo-start` (rule missing) and `demo-candidate` (rule
-implemented) are immutable local tags. Never move them.
+**Show:** the two counts, the "synthetic" label, and the review-request form.
 
-## 1. Ask: "Help me understand"
+**Say:** "JuliaHealth selects a tutorial cohort from a known synthetic dataset.
+We reused its query functions instead of building a health-data engine.
+These counts are not a clinical conclusion."
 
-**Do:** Open Chat with `Ctrl+Alt+I`, start a new chat, select **Local** in the
-Session Target control, then **Ask**. If your installation has no target picker,
-use its available Ask role; do not assume controls from another harness. [D1]
+Submit a request with a blank name. Point to the unnamed accepted entry.
+**Say:** "The coordinator needs a clear requester label. We have one small
+delivery task, not permission to redesign the application."
 
-**Paste:**
+## 2. Ask: establish the facts
 
-```text
-Explain how someone submits a request, in five business steps.
-Name only the files that support those steps. Do not edit anything.
-Find the submission endpoint and suggest one request command for PowerShell;
-do not execute it or invent a response.
-```
-
-**Point to:** One file reference and the plain-English flow. No source-code tour.
-**Say:** "A BA can start by understanding behavior, without implementing code."
-
-After reviewing the generated command, approve one synthetic submission in the
-isolated demo. Paste the **actual** status/body back into chat and ask:
-`Explain what this response means to the requester. Do not assume it succeeded.`
-
-## 2. Plan: "Agree the outcome before the edit"
-
-**Do:** In the same Local conversation, select **Plan**. [D2]
-
-**Paste:**
+Use the installed interface's Ask/read-only capability and paste:
 
 ```text
-Plan a small change: require requesterName. Missing, null, non-string, empty
-or whitespace-only names must create nothing and return HTTP 400 with
-"Requester name is required." Trim valid names and preserve other behavior.
-Include an accessible inline error, tests, one user story and three acceptance
-criteria. Identify only the files that need changing. Do not implement yet.
+Explain this research-review workflow in five business steps.
+Identify what comes from JuliaHealth and what this repository implements.
+Explain why the cohort counts people rather than condition records.
+Cite at most three source files. Do not edit files or execute commands.
 ```
 
-**Point to:** The story, three criteria, affected files and proposed checks.
-**Say:** "This is the review checkpoint. We agree the business rule and scope."
-Stop if the plan adds unrelated work or leaves the behavior ambiguous.
+Point to a source reference and the reuse boundary. A BA can understand the
+workflow without reading a whole codebase.
 
-## 3. Implement: "Let it act, then check"
+## 3. Plan: agree the outcome
 
-**Do:** Read the plan. If acceptable, choose **Start Implementation** in the
-Local plan response. This starts the implementation request; do not submit a
-second duplicate task. Keep scoped tool approvals, not automatic approval. [D2]
-
-**If using the Copilot harness instead:** Review its plan card and choose
-**Implement Plan**, not Autopilot. The names differ because the harness differs.
-
-**Point to:** An actual tool request, changed file and diff. Open Source Control
-with `Ctrl+Shift+G` and select a changed file to inspect its diff. [D3]
-
-**Paste after the agent finishes:**
+Use Plan, or request a plan explicitly in the available harness:
 
 ```text
-Check the diff against the approved scope. Run npm run check.
-Report what actually passed, failed, or could not run. Do not weaken tests.
+Plan only the requester-name rule in docs/scenario.md.
+Reject missing, null, non-string, empty and whitespace-only names without
+creating anything. Preserve the exact error response and trim accepted names.
+Include accessible error/correction behavior and tests. Preserve the study
+snapshot and use the existing dependencies. Do not implement until approved.
 ```
 
-**Then:** Stop the form's server with `Ctrl+C`, run `npm start` again, and refresh
-the browser. This app does not reload server code automatically.
-Try blank name -> clear error; valid name -> success; corrected input -> success.
-Point to the API test as well: UI validation alone does not prove enforcement.
+Review one user story, three criteria, the file list and the checks.
+Do not approve a new EHR integration, a custom cohort engine, or more packages.
+The [official planning guide](https://code.visualstudio.com/docs/agents/run/planning)
+explains the different Local/Copilot harness controls; use the labels actually
+present in the installed version.
 
-**Say:** "We trust the inspected change and observed checks, not a success claim."
-If a check fails, show it and fix only the approved scope.
+## 4. Implement: inspect and test
 
-## 4. Explain: "Turn delivery into a BA handoff"
-
-**Do:** Keep the conversation; do not start another implementation.
-
-**Paste:**
+Approve the bounded plan and required local tools. After the agent finishes:
 
 ```text
-From the actual diff and test results, draft a business summary, three acceptance
-criteria, three test scenarios, a release note, and questions for developers.
-Cite the supporting code/tests. Label assumptions. Keep it nontechnical.
+Review the actual diff against the approved name rule.
+Run npm run check. Report actual results, failures and limitations.
+Do not remove or weaken assertions. Do not change the cohort query or dataset.
 ```
 
-**Point to:** One criterion, its test, and the visible behavior.
-**Say:** "Copilot drafts the artifacts. A person checks the business meaning."
-This is a draft, not automatic approval of production requirements.
+Show the Julia change and the browser change in Source Control.
+Then restart `npm start`, refresh, and try:
 
-## 5. Delegate from the web: "The same task, assigned to an agent"
+1. Blank name: inline error, focus returns to the name, no accepted request.
+2. `  Demo Coordinator  `: accepted and displayed trimmed.
+3. Corrected input: error clears and keyboard submission works.
 
-**Do, only in the approved hosted demo:**
+Point to the API test: bypassing the browser must still reject invalid input.
+Point to the unchanged cohort counts: the feature did not alter the study.
+**Say:** "The evidence is the inspected diff and observed checks, not the agent's
+claim that it is done."
 
-1. Open **Issues -> New issue** and choose the request-name validation template.
-2. Review its populated scope/criteria and create the issue without an assignee.
-3. After scope and agent approval, open **Assignees -> Copilot**.
-4. Confirm the fresh run's base branch, which starts from `demo-start`,
-   not the branch where the local task is already finished. [D4]
+## 5. Explain: hand off the result
 
-**Point to:** The assignment, agent activity and linked PR as they actually occur.
-**Say:** "The template prepares the task; assignment starts the implementation."
-New comments on the issue are not automatically new agent input: use the linked
-PR for follow-up. Do not wait for or promise a particular completion speed. [D4]
+```text
+From the actual diff and test results, draft a nontechnical business summary,
+three acceptance criteria, three test scenarios and a short release note.
+Cite evidence. Separate verified behavior from assumptions and remaining
+manual checks. Do not describe this synthetic demo as clinically validated.
+```
 
-## 6. Review: "Ask for another check"
+**Close:** "Use existing scientific tools. Agree a small change. Inspect what
+Copilot did. Verify the behavior. Explain the result to the next person."
 
-**Do:** Open the agent's PR or the separately prepared review-fixture PR.
-Under **Reviewers**, next to **Copilot**, click **Request**. Read the actual
-comments and inspect any suggestion before applying it. [D5]
+## Optional GitHub continuation: the same story
 
-**Point to:** A real comment, the reviewed commit, and the human decision.
-If no useful comment appears, say so; use the test evidence rather than rerunning
-until you manufacture a favorable result.
+Do not repeat every extension in the main presentation. Choose one relevant
+to the audience and obtain separate approval before any hosted action.
 
-**Optional follow-through:** If available and approved, **Fix with Copilot**
-on a review comment starts a separate coding action. After a correction, run the
-checks and request re-review; new pushes are not re-reviewed by default. [D5]
-
-**Say:** "Review helps, but it does not replace testing or human approval."
-
-## 7. Automate the request, not the trust
-
-**Do:** Show an already approved narrow demo ruleset, or explain the official
-setup without saving settings. Repository **Settings -> Rulesets -> Rulesets ->
-New ruleset -> New branch ruleset**. Set **Enforcement Status: Active**, choose
-only the approved demo target branch, then select
-**Automatically request Copilot code review**. [D6]
-
-Choose **Review new pushes** and **Review draft pull requests** only deliberately.
-Click **Create** only with separate administrator approval.
-Use a fresh PR for this example, without also clicking manual Request, so the
-automatic trigger is distinguishable. Check inherited/personal rules first.
-
-**Say:** "A policy can request the review. A person still evaluates the result."
-If your account lacks the controls, label this unavailable; do not improvise
-an Actions workaround or claim the template enabled automatic review.
-
-## 8. Close: "Visible actions, focused context, useful outcomes"
-
-**Show:** Relevant files, approval boundary, diff and real checks from this run.
-In CLI, `/context` and `/usage` expose session signals; verify the installed help.
-They are not the same as enterprise adoption or billing reports. [D7][D8]
-
-**Say:** "Keep the task and context focused. Verify permissions and billing
-controls; do not infer savings or complete observability from one demonstration."
-
-**If an authorized administrator is present:** In enterprise settings, open
-**Billing & licensing -> AI usage**, inspect the actual user/model/group filters,
-then review existing budget controls. Confirm whether **Stop usage when budget
-limit is reached** is enabled; an alert alone need not block spend. Do not change
-settings or display customer usage without approval. [D8]
-
-**Capture:** One developer workflow, one BA workflow, and one reporting question.
-Give each an owner and a success measure only when the audience agrees them.
-
-**If asked about SharePoint, Foundry or Copilot Studio:** "Those need discovery
-around users, permissions, data, failures and costs. This example did not
-evaluate them."
-
-**Close:** "Ask clearly, review the plan, inspect the change, validate the result."
-
-## If they ask: "Can I do this in CLI or the app?"
-
-Do not repeat the implementation. Show the equivalent controls or explain them:
-
-| Surface | Simple instructions | Boundary |
+| Feature | What to show | Evidence/boundary |
 |---|---|---|
-| CLI | In the demo worktree, run `copilot`; use `/plan`, approve only the bounded change, inspect `/diff`, and run the agreed checks. Use `/permissions` to inspect the actual controls. [D7] | `/ask` is a side question, not proof of enforced read-only access. Do not imply a second implementation was rehearsed. |
-| GitHub Copilot app | Add the local worktree under **Projects**; start a session; use `/plan`, review it, then **Interactive** for approved work; click **Changes** for the diff. [D9] | App access/policy is separate from CLI access. Do not click Create PR without publication approval. |
-| GitHub Mobile | Use available Copilot questions and follow-up while away from the workstation. [D10] | Not a replacement for this local browser/test environment. |
+| Issues + Copilot coding agent | The same scoped name task on a fresh committed Julia start branch | Creating an issue is not assignment; confirm the actual base before starting an agent |
+| Pull requests + Copilot review | A real review of the isolated whitespace regression | Preserve the failing test; report missed findings as well as useful comments |
+| GitHub Actions | The `JuliaHealth demo checks` workflow running the same setup/check commands | Local tests are not a hosted run; show the real run result only after approved publication/execution |
+| Repository instructions | The short reuse, synthetic-data and validation constraints | Instructions guide behavior, not actual tool permissions |
+| BA handoff | A criterion traced to the Julia API test and visible correction | A generated release note is still a human-reviewed draft |
 
-## If they ask: "We use Azure DevOps (Boards, Repos, Pipelines) - what are we missing?"
+Use [web scenarios](docs/web-scenarios.md) for exact preparation and approval
+boundaries. The workflow uses pinned action commits and read-only repository
+permission. It needs no secrets and does not request reviews or publish anything.
+Check effective automatic policies **before** an approved push.
 
-Short answer: autonomous Copilot features (cloud agent, Copilot code review) run
-on **GitHub-hosted repositories**, not Azure Repos Git. Copilot in the IDE and CLI
-(including the Azure DevOps MCP server) works regardless of where the repo lives.
-Sections 5-7 above are the live proof of what the GitHub side adds.
+CLI/app/mobile alternatives stay in [the harness guides](docs/harnesses).
+Do not repeat the full implementation just to tour interfaces.
 
-| Option | What changes | Gets you | Boundary |
-|---|---|---|---|
-| A. Hybrid: keep Boards and Pipelines, move repos to GitHub | Code moves; planning and CI/CD stay | Cloud agent, PR review, templates, rulesets | Needs the Azure Boards GitHub app connection and pipeline re-pointing; verify in your tenant |
-| B. Boards work item -> Copilot | Send a work item to Copilot from Boards | Draft PR in a linked GitHub repo, traced back to the work item; custom agents selectable | Documented by Microsoft; GitHub repo and paid Copilot seat required. Not exercised in this demo |
-| C. Pilot | Move one or two repos first | Evidence before a wider decision | Run the flows in sections 5-7 on the pilot repo |
-| D. Stay on Azure Repos | No migration | IDE/CLI Copilot plus ADO MCP | No autonomous agent or hosted review on Azure Repos |
+## If something fails
 
-**Ask them:** which repos are most sensitive, what Azure Pipelines or branch
-policies depend on Azure Repos, and who owns the Boards-GitHub connection.
-**Do not claim** a tenant-specific result or any planned Azure Repos support;
-recheck current Microsoft and GitHub documentation before the session:
-`https://learn.microsoft.com/en-us/azure/devops/boards/github/work-item-integration-github-copilot`.
-
-## Presenter setup: the props, not the presentation
-
-From `C:\Users\tauilsamuel\Development\playground`, choose a **new** run name:
-
-```powershell
-git worktree add -b demo/presenter-one .demo-runs\presenter-one\worktree demo-start
-Set-Location .demo-runs\presenter-one\worktree
-npm ci
-npx playwright install chromium
-npm run check
-code -n .
-npm start
-```
-
-Stop if the branch/directory already exists. Open `http://127.0.0.1:3000`.
-Baseline tests passing does not certify the deliberately absent name rule.
-If the port is occupied, choose another PORT; never kill an unrelated process.
-In a second terminal, use the same worktree for validation. Restart only your
-own server after implementation. Use synthetic input; do not attach `context`.
-
-**Web preflight, separately approved:** Publish only intended demo refs and
-templates; never add the ignored source context. Templates must reach the remote
-default branch for the chooser. Prepare a fresh starting branch for step 5 and,
-if needed, a separate regression PR for steps 6/7. Use `docs\web-scenarios.md`
-and the existing local draft generator; a prefilled link is a draft, not a
-created issue or trigger. [D11]
-
-**Repeat:** New run name -> fresh worktree/branches/issues/PRs. Keep checkpoints
-and prior evidence; do not force-reset, force-push or bulk-delete.
-`demo-complete` remains withheld until the
-separately recorded interactive/manual acceptance checks are satisfied.
-
-**Reference only:** `docs\facilitator-playbook.md` contains the full coverage
-matrix and fallback cards. Do not present that matrix or repository internals.
+- Setup/data failure: stop; never replace library results with hardcoded counts.
+- Agent broadens scope: reject the extra change and return to the agreed rule.
+- Test failure: show it and fix the actual defect; do not skip the check.
+- A Copilot/GitHub feature is unavailable: say so; do not impersonate a live run.
+- Need a known reference: open the prepared reference snapshot, explicitly label
+  it as the reference, and explain that it is not the output of the current agent.
