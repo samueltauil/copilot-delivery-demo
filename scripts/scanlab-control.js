@@ -1,5 +1,5 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { callBackend, connectBackend } from './scanlab-backend.js';
+import { callBackend, connectBackend, withoutDicomBytes } from './scanlab-backend.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 
@@ -18,7 +18,12 @@ export function controlRequest(args) {
 export function summarizeState(state) {
   const summarize = (result) => result ? {
     id: result.id, preset: result.preset, resultHash: result.resultHash,
-    inputHash: result.inputHash, computeSeconds: result.computeSeconds
+    inputHash: result.inputHash, computeSeconds: result.computeSeconds,
+    dicom: result.dicom ? {
+      sopInstanceUid: result.dicom.sopInstanceUid, fileHash: result.dicom.fileHash,
+      byteLength: result.dicom.byteLength, storedPixelsExact: result.dicom.storedPixelsExact,
+      maxAbsoluteError: result.dicom.maxAbsoluteError, errorBound: result.dicom.errorBound
+    } : null
   } : null;
   return {
     instanceId: state.instanceId, status: state.status, activeRunId: state.activeRunId,
@@ -32,7 +37,7 @@ if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) 
     const { action, input } = controlRequest(process.argv.slice(2));
     const connection = await connectBackend(root);
     const result = await callBackend(connection, action, input);
-    console.log(JSON.stringify(action === 'run' ? result : summarizeState(result), null, 2));
+    console.log(JSON.stringify(action === 'run' ? withoutDicomBytes(result) : summarizeState(result), null, 2));
   } catch (error) {
     console.error(`ScanLab control failed: ${error.message}`);
     process.exitCode = 1;

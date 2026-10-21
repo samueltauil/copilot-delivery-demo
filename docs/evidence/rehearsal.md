@@ -1,5 +1,64 @@
 # Rehearsal evidence
 
+## ScanLab realistic phantom: BrainWeb-derived brain slice
+
+The geometric phantom was replaced by KomaMRI's bundled `brain_phantom2D`
+(BrainWeb-derived, axial, 11,554 spins at `ss=3`) on a 96 × 96 grid; see
+[credits](../credits.md). No external dataset was downloaded or added.
+
+| Check | Observed result |
+|---|---|
+| `npm run scanlab:check` | Julia suites passed; 10 Node tests passed; 9 Chromium tests passed, zero retries |
+| Actual live comparison | No-motion baseline `a732f1fe-0d50-4315-9c8b-2ac898e89837`; final larger-shift run `4d3041a9-5870-468c-8a0a-a9f121f1dbc9` |
+| Independent DICOM reader | All 9,216 row-major pixel values decoded by `dicom-parser` matched the reported pixels |
+| Visual inspection | Workbench screenshot: upright brain (anterior at top); 16 mm shift shows visible ghosting and blur beside the clean baseline |
+| Failure retained | First full run failed the exact repeat-pixel assertion: 15–23 of 9,216 pixels differed by one 16-bit step. Cause: NFFT threaded gridding under two Julia threads. Reconstruction now disables NFFT threading; six repeats were bit-identical and the assertion was kept unchanged |
+| Failure retained | Browser test hit its 30 s limit with three 96 × 96 runs; that test now allows 120 s and compares all decoded rows in one assertion |
+
+## ScanLab DICOM workbench: October 20, 2026
+
+Local implementation in the current checkout; no commit, push, hosted workflow,
+issue, PR, deployment, settings or permission change was performed for this work.
+The fixed phantom and three CPU motion presets remain unchanged.
+
+| Check | Observed result |
+|---|---|
+| Pinned DICOM environment | DICOM.jl 0.11.0 resolved and instantiated; existing imaging versions unchanged |
+| Julia science | 57 assertions passed, including all three actual simulations, original reconstruction comparison, and bounded DICOM quantization |
+| State / DICOM / HTTP | 39 state, 26 DICOM and 46 HTTP assertions passed |
+| Canvas / developer checks | All 9 Node tests passed, including snapshot restoration and shared Canvas adapter lifecycle |
+| Independent DICOM reader | `dicom-parser` 1.8.21 parsed downloaded bytes; file-meta length, file/dataset UIDs, syntax, pixel type, all 9,216 row-major pixel values and rescaling matched |
+| `npm run scanlab:e2e` | 9 Chromium tests passed, exit 0, zero retries |
+| Actual live comparison | No-motion baseline `a01fc6ac-c660-4c5a-8588-b7c7c075c6af`; final larger-shift run `64461652-de8d-4fb5-93d6-29387a97b832` |
+| Baseline invariants | Entire baseline state, DICOM bytes/hash, decoded pixels and displayed pixel matrix unchanged through Controlled shift and Larger shift |
+| Responsive inspection | 1280, 520 and 390 px overflow checks passed; desktop and 390 px screenshots visually inspected |
+| Preserved request desk | `npm run setup` and `npm run check` passed, including 137 Julia assertions, 7 Node tests and 11 browser tests |
+| Design checks | Final mechanical detector returned no findings; repeated rebuttal-style copy was simplified |
+| Existing Copilot Canvas | Extension reloaded and registered; `scanlab-validation` reopened with the workbench title. Native `get_state` returned `workflowVersion: dicom-v1`, idle, no result or baseline, and no error |
+
+Failures were retained and corrected: an initially chosen upstream-master DICOM
+version was unavailable in the registered environment, so the registered 0.11.0
+release was pinned; a helper-scoping mistake was exposed by the new tests and
+fixed. A browser run used a service started before the workflow-version guard
+was added and failed seven checks. Restarting the isolated test service restored
+all nine tests. No assertions were skipped, weakened, or retried to hide failures.
+A final teaching-fixture check caught missing trailing patch context after the
+new linked controls were disabled in the teaching start. The hunk was corrected;
+the fixture application and exact-restoration test passed again.
+
+Actual Copilot-app GUI verification remains **unverified**. Prior Computer Use
+inspection was rejected by host safety policy; this implementation session's
+Computer Use tool discovery exposed no tools. Browser automation and adapter
+tests are not presented as a successful app rehearsal. The existing service
+must be restarted by its owner after future code changes; an older backend now
+produces an explicit version error instead of presenting old results as verified
+DICOM. The existing Canvas was reopened and its native state action confirmed a
+fresh DICOM-aware session, not a visual GUI check.
+The manual readiness automation definition and app-first presenter guide were
+updated; no app automation was created or scheduled. DICOM evidence is bounded
+interoperability testing, not standard conformance certification or clinical
+validation.
+
 ## JuliaHealth migration: October 18, 2026
 
 Validated the local working tree based on `10ca828`; these changes were not

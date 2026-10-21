@@ -1,61 +1,102 @@
 <!doctype html>
 <html lang="en">
+<!-- THESIS: A live image and its DICOM evidence share one workbench, not a marketing page.
+OWN-WORLD: Neutral slate chrome, black image fields, blue actions, square instrument-like controls.
+STORY: Compute, reopen, pin, change one condition, inspect what survived.
+FIRST VIEWPORT: Compact header and acquisition toolbar above a series rail and two dominant viewports.
+FORM: Brief-pinned imaging workbench; linked controls and an inline evidence inspector. -->
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ScanLab · A virtual imaging experiment</title>
+  <title>ScanLab · Image Integrity Workbench</title>
   <link rel="stylesheet" href="/styles.css">
   <script defer src="/plotly.js"></script>
   <script type="module" src="/app.js"></script>
 </head>
 <body>
+  <a class="skip-link" href="#workspace">Skip to image comparison</a>
   <main>
-    <header>
-      <p class="eyebrow">ScanLab <span>Synthetic research only</span></p>
-      <h1>Same object.<br>One condition changed.</h1>
-      <p>Explore how controlled motion changes a simulated acquisition. Pin a result, change the scenario, and compare the evidence.</p>
+    <header class="app-header">
+      <div class="identity"><span class="brand-mark" aria-hidden="true">S</span><div><h1>ScanLab</h1><p>Image Integrity Workbench</p></div></div>
+      <p class="scope">Synthetic phantom <span aria-hidden="true">/</span> Research &amp; education only</p>
     </header>
-    <section class="controls" aria-label="Experiment controls">
-      <label for="preset">Motion scenario</label>
-      <select id="preset" disabled>
+    <section class="acquisition-bar" aria-label="Experiment controls">
+      <div class="scenario"><label for="preset">Motion scenario</label><select id="preset" disabled>
         <option value="still">No motion</option>
         <option value="gentle">Controlled shift · 8 mm</option>
         <option value="larger">Larger shift · 16 mm</option>
-      </select>
+      </select></div>
       <button id="run" disabled>Run experiment</button>
       <button id="pin" class="secondary" disabled>Pin baseline</button>
-      <button id="export" class="secondary" disabled>Save comparison</button>
+      <span class="toolbar-note">Every acquisition computes live on this CPU.</span>
     </section>
-    <p id="status" role="status" aria-live="polite">Connecting to the live experiment...</p>
+    <section class="run-strip" aria-label="Live acquisition progress">
+      <p id="status" role="status" aria-live="polite">Connecting to the live experiment...</p>
+      <ol id="pipeline" aria-label="DICOM pipeline">
+        <li data-stage="simulating">Simulate</li><li data-stage="writing">Write DICOM</li>
+        <li data-stage="reopening">Reopen</li><li data-stage="verifying">Verify pixels</li>
+      </ol>
+    </section>
     <p id="error" role="alert"></p>
-    <div class="images">
-      <section class="image-card" aria-labelledby="baseline-heading">
-        <div class="card-heading"><h2 id="baseline-heading">Pinned baseline</h2><span id="baseline-label">Not pinned</span></div>
-        <p id="baseline-empty" class="empty">Run an experiment, then pin it to hold your reference still.</p>
-        <div id="baseline-image" class="plot" role="img" aria-label="Pinned synthetic acquisition" hidden></div>
-        <p id="baseline-caption" class="caption"></p>
-      </section>
-      <section class="image-card" aria-labelledby="current-heading">
-        <div class="card-heading"><h2 id="current-heading">Current result</h2><span id="current-label">Awaiting a live run</span></div>
-        <p id="current-empty" class="empty">No preloaded results.<br>Run a live experiment to begin.</p>
-        <div id="current-image" class="plot" role="img" aria-label="Current synthetic acquisition" hidden></div>
-        <p id="current-caption" class="caption"></p>
-      </section>
+    <div class="workbench" id="workspace" tabindex="-1">
+      <aside class="series-rail" aria-label="Synthetic study">
+        <h2>Study</h2><p class="study-title">BrainWeb-derived phantom</p><p class="muted">One synthetic axial slice. Three motion presets.</p>
+        <div class="series-item"><span class="series-symbol" aria-hidden="true">REF</span><div><h3>Pinned baseline</h3><p id="rail-baseline">No reference yet</p></div></div>
+        <div class="series-item"><span class="series-symbol" aria-hidden="true">NOW</span><div><h3>Current acquisition</h3><p id="rail-current">No acquisition yet</p></div></div>
+        <p class="rail-footnote">Derived Secondary Capture<br>16-bit grayscale<br>No patient data</p>
+      </aside>
+      <div class="image-workspace">
+        <div class="images">
+          <section class="viewport" aria-labelledby="baseline-heading">
+            <div class="viewport-heading"><h2 id="baseline-heading">Pinned baseline</h2><span id="baseline-label">Not pinned</span></div>
+            <div id="baseline-empty" class="empty"><span class="empty-glyph" aria-hidden="true">+</span><h3>Hold the reference still.</h3><p>Run No motion, then pin its reopened DICOM image.</p></div>
+            <div id="baseline-image" class="plot" role="img" aria-label="Pinned synthetic acquisition" hidden></div>
+            <p id="baseline-caption" class="caption"></p>
+          </section>
+          <section class="viewport" aria-labelledby="current-heading">
+            <div class="viewport-heading"><h2 id="current-heading">Current result</h2><span id="current-label">Awaiting a live run</span></div>
+            <div id="current-empty" class="empty"><span class="empty-glyph" aria-hidden="true">+</span><h3>Start with a real computation.</h3><p>No preloaded results. Every image is simulated, written as DICOM, reopened, and checked.</p></div>
+            <div id="current-image" class="plot" role="img" aria-label="Current synthetic acquisition" hidden></div>
+            <p id="current-caption" class="caption"></p>
+          </section>
+        </div>
+        <section class="view-controls" aria-label="Linked image controls">
+          <span class="linked-label">Linked views</span>
+          <div><label for="zoom">Shared zoom</label><input id="zoom" type="range" min="1" max="3" step="0.25" value="1" disabled><output id="zoom-label" for="zoom">1×</output></div>
+          <div><label for="pan-x">Pan X</label><input id="pan-x" type="range" min="-12" max="12" step="1" value="0" disabled></div>
+          <div><label for="pan-y">Pan Y</label><input id="pan-y" type="range" min="-12" max="12" step="1" value="0" disabled></div>
+          <div><label for="window-center">Window center</label><input id="window-center" type="range" min="0" max="1" step="0.05" value="0.5" disabled></div>
+          <div><label for="window-width">Window width</label><input id="window-width" type="range" min="0.05" max="2" step="0.05" value="1" disabled></div>
+          <button id="reset-view" class="secondary" disabled>Reset view</button>
+          <p>Both views use arbitrary intensity units; display controls leave stored pixels unchanged. Display shows anterior at the top only; no DICOM patient orientation or clinical measurements are provided.</p>
+        </section>
+      </div>
     </div>
-    <section class="comparison-controls" aria-label="Comparison view">
-      <p>One fixed intensity scale. Synchronized views. No clinical quality score.</p>
-      <label for="zoom">Shared zoom</label>
-      <input id="zoom" type="range" min="1" max="3" step="0.25" value="1" disabled>
-      <output id="zoom-label" for="zoom">1×</output>
-      <button id="reset-view" class="secondary" disabled>Reset view</button>
+    <section class="inspector" aria-label="Acquisition inspector">
+      <div class="inspector-bar">
+        <div role="tablist" aria-label="Inspect image evidence">
+          <button id="tab-evidence" role="tab" aria-selected="true" aria-controls="panel-evidence">Integrity</button>
+          <button id="tab-dicom" role="tab" aria-selected="false" aria-controls="panel-dicom" tabindex="-1">DICOM tags</button>
+          <button id="tab-acquisition" role="tab" aria-selected="false" aria-controls="panel-acquisition" tabindex="-1">Acquisition</button>
+        </div>
+        <div class="inspect-target"><label for="inspect-side">Inspect</label><select id="inspect-side"><option value="current">Current result</option><option value="baseline">Pinned baseline</option></select></div>
+      </div>
+      <div id="panel-evidence" role="tabpanel" aria-labelledby="tab-evidence">
+        <div class="integrity-summary"><h2 id="integrity-title">The image is only half the story.</h2><p id="integrity-detail">Run an experiment to inspect the DICOM round trip and its measured error.</p></div>
+        <dl id="evidence" class="evidence-grid"></dl>
+      </div>
+      <div id="panel-dicom" role="tabpanel" aria-labelledby="tab-dicom" hidden>
+        <p class="panel-note">Reopened file metadata. Synthetic Secondary Capture, not a clinical MR image or a conformance certification.</p>
+        <div class="table-scroll"><table><caption class="visually-hidden">DICOM metadata from the selected acquisition</caption><thead><tr><th scope="col">Tag</th><th scope="col">Attribute</th><th scope="col">Value</th></tr></thead><tbody id="dicom-tags"></tbody></table></div>
+      </div>
+      <div id="panel-acquisition" role="tabpanel" aria-labelledby="tab-acquisition" hidden><pre id="provenance">Run an experiment to inspect its parameters and provenance.</pre></div>
+      <div class="evidence-actions"><button id="download-dicom" class="secondary" disabled>Download DICOM</button><button id="export" class="secondary" disabled>Save comparison</button><p>Files stay local until you choose to share them.</p></div>
     </section>
-    <details>
-      <summary>How this experiment works</summary>
-      <p>An analytical geometric phantom, not a patient image. One fixed echo-planar acquisition. Three controlled translation presets. Every Run computes a new result on this machine.</p>
-      <p>The numerical pipeline reuses <a href="https://github.com/JuliaHealth/KomaMRI.jl">KomaMRI</a>, MRIReco and existing plotting components. Julia performs the calculation; Copilot helps improve the workflow.</p>
-      <pre id="provenance">Run an experiment to inspect its parameters and provenance.</pre>
+    <details class="method"><summary>What is computed, and what is proved?</summary>
+      <p>The fixed 96 × 96 acquisition uses KomaMRI's bundled BrainWeb-derived digital brain phantom: published synthetic anatomy, not a patient record. KomaMRI computes the CPU acquisition; MRIReco reconstructs it. DICOM.jl writes a derived 16-bit Secondary Capture file and reopens it. The displayed image comes from those decoded pixels, rescaled to arbitrary units.</p>
+      <p>Stored integer pixels must survive exactly. Quantization error against the floating-point reconstruction must stay within half a stored intensity step. This is image-integrity evidence, not diagnostic validation. A pinned baseline retains its image, run ID, DICOM bytes, and parameters through subsequent runs.</p>
     </details>
-    <footer>Research and education only. No patient-derived data, diagnosis, scanner control, or clinical recommendation.</footer>
+    <footer><span>ScanLab / JuliaHealth imaging libraries</span><span>Research software without diagnostic, scanner-control, or patient-import functions.</span></footer>
   </main>
 </body>
 </html>

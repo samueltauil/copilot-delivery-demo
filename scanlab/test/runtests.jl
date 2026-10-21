@@ -4,4 +4,5 @@ using .ScanLab
 
 include("science.jl")
 include("state.jl")
+include("dicom.jl")
 include("server.jl")

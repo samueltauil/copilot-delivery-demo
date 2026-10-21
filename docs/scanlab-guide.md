@@ -1,4 +1,4 @@
-# ScanLab: let the result create the conversation
+# ScanLab: image integrity, from Copilot to DICOM
 
 ## Before the audience joins
 
@@ -9,6 +9,9 @@ npm run scanlab:setup
 npm run scanlab:check
 npm run scanlab
 ```
+
+Also run `npm run setup` before presenting the preserved request-desk exercise.
+Do not install dependencies or compile packages in front of the audience.
 
 Wait for **ScanLab ready**, then open the printed local URL. Keep that terminal
 open. Compilation belongs here, not in front of the audience. The canvas can
@@ -27,16 +30,22 @@ See [app instructions](harnesses/copilot-app.md).
 
 Show the experiment, not code.
 
-**Say:** "Same virtual object. One acquisition condition changed. What happens
-to the resulting image?"
+**Say:** "We can generate an image. But can we prove which computation produced
+it, and that our imaging software preserved it?"
 
-Run **No motion**, pin it, then run **Controlled shift** and **Larger shift**.
-Point to the fixed baseline, shared scale and actual run metadata. These are
-live synthetic calculations, not patient images or a clinical recommendation.
+Run **No motion**. Show the real pipeline state, then the **Integrity** inspector.
+The displayed image has been written as DICOM and reopened, not just rendered
+from the original array. Stored pixels survive exactly; floating-point
+quantization has a measured half-step bound. Show that distinction explicitly.
+Pin it, then run **Controlled shift**. Point to the unchanged baseline run ID,
+image, and DICOM file hash beside the newly identified current acquisition.
+These are live synthetic calculations, not patient images or a recommendation.
 
 ### 2. The researcher’s workflow
 
-Use the keyboard-accessible shared zoom and save a comparison.
+Use linked zoom, pan and window/level. Reset the view, switch the inspector to
+**Pinned baseline**, open **DICOM tags**, and download its actual `.dcm` file.
+Save the comparison JSON, which contains both images, encoded DICOM and provenance.
 
 **Say:** "We can inspect the difference without losing our reference or the
 parameters that produced it."
@@ -78,11 +87,13 @@ Agent output, fixture correction and the reference are distinct evidence.
 
 ### 5. Reveal the technology
 
-Open **How this experiment works** only now.
+Open **What is computed, and what is proved?** only now.
 
 **Say:** "The numerical pipeline reuses JuliaHealth's KomaMRI and MRIReco.
-We did not ask Copilot to invent MRI physics. Julia is the scientific technology
-choice; Copilot helps connect that capability to the workflow and its evidence."
+We did not ask Copilot to invent MRI physics or a DICOM codec. DICOM.jl writes
+and reads the file; an independent test parser checks the exported bytes.
+Julia is the scientific technology choice; Copilot helps connect that capability
+to the workflow and its evidence."
 
 Close with the saved comparison and a discussion of the audience's specialist
 workflows. Do not turn the close into a tour of every package or Copilot setting.
@@ -93,6 +104,30 @@ Reuse this exact task: issue -> implementation branch -> PR -> checks -> human
 review. Local templates and CI definitions are preparation, not hosted results.
 Obtain separate approval before publication, assignments, reviews or workflow
 runs. Do not switch to the generic requester-name story halfway through.
+
+Highlight repository instructions and the `scanlab-demo` skill first: they
+carry the scientific/data boundaries and exact validation commands. Then show a
+plan, human approval, the actual diff, unchanged acceptance tests, and failure
+output when applicable. A manual **ScanLab local readiness** task is the useful
+automation: it runs the gate and summarizes evidence without editing or repairing.
+Do not turn the demo into an autonomous clinical agent or a tour of settings.
+
+## Copilot-app-first opening prompt
+
+After completing setup and warming the service outside the presentation:
+
+```text
+Use the scanlab-demo skill in the current checkout.
+Report the working directory and open the existing ScanLab Canvas.
+Do not scaffold a second extension, edit files, install anything, or change settings.
+Explain only how to run No motion, pin the reopened DICOM baseline, run
+Controlled shift, and inspect the unchanged reference run ID and file hash.
+```
+
+The host may prohibit Computer Use on Copilot itself. If so, a human operates the
+Canvas and records that observation. Browser, adapter and actual app evidence
+are separate. After source changes, restart only the service you own; an attached
+older service is not automatically replaced. Never publish capability-bearing URLs.
 
 ## Repeat
 

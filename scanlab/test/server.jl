@@ -14,6 +14,9 @@
         @test request("GET", "/api/state"; token="wrong").status == 403
         @test request("GET", "/api/state"; headers=["Origin"=>"https://untrusted.invalid"]).status == 403
         @test request("GET", "/api/state"; headers=["Origin"=>base]).status == 200
+        @test request("GET", "/api/dicom/00000000-0000-4000-8000-000000000001"; token="wrong").status == 403
+        @test request("GET", "/api/dicom/00000000-0000-4000-8000-000000000001").status == 404
+        @test request("GET", "/api/dicom/not-a-run").status == 400
         for path in ("/", "/app.js", "/styles.css", "/plotly.js")
             response = request("GET", path)
             @test response.status == 200
@@ -35,6 +38,7 @@
         @test length(jobs) == 1
         jobs[1]()
         @test parse(request("GET", "/api/state"))["status"] == "succeeded"
+        @test request("GET", "/api/dicom/$id").status == 409
         @test request("POST", "/api/pin"; payload=Dict("runId"=>id), headers=["content-type"=>"application/json"]).status == 200
         response = request("GET", "/api/compare")
         @test response.status == 200

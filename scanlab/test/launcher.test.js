@@ -24,9 +24,15 @@ test('CLI controls accept only bounded commands and never print connection capab
   }
   const summary = summarizeState({
     status: 'succeeded', token: 'not-for-output',
-    result: { id: 'demo', preset: 'still', pixels: [[1]], figure: {}, token: 'hidden' }
+    result: {
+      id: 'demo', preset: 'still', pixels: [[1]], figure: {}, token: 'hidden',
+      dicom: { sopInstanceUid: '2.25.1', fileHash: 'abc', byteLength: 10, storedPixelsExact: true, fileBase64: 'AAAA' }
+    }
   });
   assert.equal(summary.result.id, 'demo');
+  assert.equal(summary.result.dicom.fileHash, 'abc');
+  assert.equal(summary.result.dicom.storedPixelsExact, true);
+  assert.ok(!JSON.stringify(summary).includes('fileBase64'));
   assert.ok(!JSON.stringify(summary).includes('token'));
   assert.ok(!JSON.stringify(summary).includes('pixels'));
 });

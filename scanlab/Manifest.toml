@@ -2,7 +2,7 @@
 
 julia_version = "1.10.12"
 manifest_format = "2.0"
-project_hash = "e28b8402721d9aa9e7b54638eef5cd0d3c3477bf"
+project_hash = "38c56255f3a2760e2b4c232ccb66ff455b55cf99"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -336,6 +336,11 @@ version = "0.3.3"
 git-tree-sha1 = "54b76cbb40d9a0f5368c880725b2f141da77c94f"
 uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
 version = "4.2.0"
+
+[[deps.DICOM]]
+git-tree-sha1 = "8857acfd0f2ae6f2d27a187fb7cdcd990e0866da"
+uuid = "a26e6606-dd52-5f6a-a97f-4f611373d757"
+version = "0.11.0"
 
 [[deps.DSP]]
 deps = ["Bessels", "FFTW", "IterTools", "LinearAlgebra", "Polynomials", "Random", "Reexport", "SpecialFunctions", "Statistics"]

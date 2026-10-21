@@ -39,6 +39,19 @@ test('Canvas and browser use the same bounded backend and lifecycle', async () =
   assert.equal(stops, 1);
 });
 
+test('Canvas actions return DICOM evidence without encoded file bytes', async () => {
+  const dicom = { fileHash: 'abc', byteLength: 10, fileBase64: 'AAAA' };
+  const canvas = makeCanvas({
+    createCanvas: (options) => options, CanvasError, root: 'unused',
+    start: async () => ({ connection, stop: async () => {} }),
+    call: async () => ({ result: { id: 'one', dicom }, baseline: { id: 'two', dicom }, history: [{ dicom }] })
+  });
+  const state = await canvas.actions.find((action) => action.name === 'get_state').handler({ input: {} });
+  assert.deepEqual(state.result.dicom, { fileHash: 'abc', byteLength: 10 });
+  assert.deepEqual(state.baseline.dicom, { fileHash: 'abc', byteLength: 10 });
+  assert.deepEqual(state.history[0].dicom, { fileHash: 'abc', byteLength: 10 });
+});
+
 test('Canvas failures are explicit, not successful-looking results', async () => {
   const canvas = makeCanvas({
     createCanvas: (options) => options, CanvasError, root: 'unused',

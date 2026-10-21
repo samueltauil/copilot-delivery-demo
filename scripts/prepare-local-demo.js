@@ -8,7 +8,7 @@ import { validRun } from './prepare-web-demo.js';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const entries = [
   '.gitignore', '.github', '.vscode', 'Project.toml', 'Manifest.toml',
-  'package.json', 'package-lock.json', 'playwright.config.js', 'README.md',
+  'package.json', 'package-lock.json', 'playwright.config.js', 'README.md', 'PRODUCT.md', 'DESIGN.md',
   'DEMO-GUIDE.md', 'LICENSE', 'src', 'public', 'scripts', 'test', 'e2e', 'docs', 'scanlab'
 ];
 

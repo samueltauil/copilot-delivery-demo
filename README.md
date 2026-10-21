@@ -2,13 +2,16 @@
 
 The primary presentation is **ScanLab**: run a synthetic imaging experiment,
 change a controlled motion preset, and compare the result with a pinned
-baseline. Reveal how Copilot helps improve the workflow, then introduce Julia
-and the reused KomaMRI/MRIReco libraries.
+baseline. Each result is written as synthetic DICOM, reopened, and checked;
+the workbench displays the decoded image with linked zoom/pan/window-level
+and inspectable integrity evidence. Reveal how Copilot helps improve the workflow,
+then introduce Julia and the reused KomaMRI/MRIReco/DICOM.jl libraries.
 
 No patient data, clinical conclusions, generated fake images, or replay mode.
 Every Run computes on the local CPU. Start from the
 [ScanLab presenter guide](docs/scanlab-guide.md) and
-[scientific contract](docs/scanlab-scenario.md).
+[scientific contract](docs/scanlab-scenario.md). Library, research, and dataset
+attribution is in [credits](docs/credits.md).
 
 ```powershell
 npm ci
@@ -17,6 +20,12 @@ npm run scanlab:setup
 npm run scanlab:check
 npm run scanlab
 ```
+
+The DICOM output is derived Secondary Capture, not a clinical MR image.
+Stored 16-bit pixels must survive exactly; floating-point quantization error is
+measured and bounded. Downloads contain the actual verified bytes. The browser
+suite independently reads them with `dicom-parser`; no conformance certification
+or clinical suitability is claimed.
 
 Use Julia 1.10.12 and Node 22.20+ as below. Imaging dependencies are separately
 pinned under `scanlab`; no OMOP dataset is required for ScanLab. Setup and

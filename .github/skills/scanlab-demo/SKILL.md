@@ -18,7 +18,13 @@ worktree that lacks the uncommitted demonstration.
    another extension. Startup warms code, then publishes a fresh empty session.
 4. Choose only `still`, `gentle`, or `larger`. Every Run invokes live simulation.
 5. Pin a completed run, compute another preset, and confirm the baseline run ID
-   and parameters remain unchanged.
+   and parameters remain unchanged. The displayed image must come from the
+   reopened DICOM file. Inspect measured quantization error, full baseline run ID
+   and DICOM/pixel hashes; verify the pinned bytes/pixels remain unchanged.
+6. Use linked zoom, pan and window/level. Download the selected acquisition's
+   synthetic Secondary Capture DICOM and save comparison evidence if requested.
+   Display controls do not alter pixels. Do not claim a clinical MR object,
+   diagnostic quality score, lossless float encoding or conformance certification.
 
 When native Canvas actions are unavailable in CLI, use
 `npm run scanlab:control -- state`, `run still|gentle|larger`, or `pin RUN_ID`

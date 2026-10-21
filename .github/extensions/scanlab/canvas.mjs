@@ -1,4 +1,4 @@
-import { browserUrl, callBackend, startBackend } from '../../../scripts/scanlab-backend.js';
+import { browserUrl, callBackend, startBackend, withoutDicomBytes } from '../../../scripts/scanlab-backend.js';
 
 const presetSchema = {
   type: 'object', properties: { preset: { type: 'string', enum: ['still', 'gentle', 'larger'] } },
@@ -12,16 +12,16 @@ export function makeCanvas({ createCanvas, CanvasError, root, log, start = start
   const invoke = (action) => async (context) => {
     try {
       const runtime = await getBackend();
-      return await call(runtime.connection, action, ['state', 'compare'].includes(action) ? undefined : context.input);
+      return withoutDicomBytes(await call(runtime.connection, action, ['state', 'compare'].includes(action) ? undefined : context.input));
     } catch (error) {
       throw new CanvasError('scanlab_action_failed', error.message);
     }
   };
   return createCanvas({
     id: 'scanlab', displayName: 'ScanLab',
-    description: 'Compare live synthetic imaging experiments, pin a baseline, and inspect reproducible evidence. No clinical use.',
+    description: 'Compute synthetic acquisitions, reopen DICOM, pin a baseline, and inspect image-integrity evidence. No clinical use.',
     actions: [
-      { name: 'get_state', description: 'Read actual live experiment state and completed results.', handler: invoke('state') },
+      { name: 'get_state', description: 'Read actual live experiment state, completed results, and DICOM evidence (file hash and length; download bytes from the workbench).', handler: invoke('state') },
       { name: 'select_preset', description: 'Select one of three fixed synthetic motion presets.', inputSchema: presetSchema, handler: invoke('preset') },
       { name: 'run_experiment', description: 'Compute a new live CPU simulation. Rejects concurrent starts; never replays saved results.', inputSchema: presetSchema, handler: invoke('run') },
       {
@@ -35,7 +35,7 @@ export function makeCanvas({ createCanvas, CanvasError, root, log, start = start
       try {
         const runtime = await getBackend();
         instances.add(context.instanceId);
-        return { title: 'ScanLab · synthetic imaging', url: browserUrl(runtime.connection) };
+        return { title: 'ScanLab · Image Integrity Workbench', url: browserUrl(runtime.connection) };
       } catch (error) {
         throw new CanvasError('scanlab_start_failed', error.message);
       }

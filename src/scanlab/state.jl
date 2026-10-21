@@ -14,18 +14,18 @@ mutable struct SessionState
     result::Union{Nothing,Dict{String,Any}}
     baseline::Union{Nothing,Dict{String,Any}}
     error::Union{Nothing,String}
+    stage::String
 end
 
-SessionState() = SessionState(ReentrantLock(), string(uuid4()), "still", "idle", nothing, nothing, nothing, nothing)
+SessionState() = SessionState(ReentrantLock(), string(uuid4()), "still", "idle", nothing, nothing, nothing, nothing, "idle")
 
 function snapshot(state::SessionState)
     lock(state.lock) do
-        (instanceId=state.instance_id, selectedPreset=state.selected, status=state.status,
+        (workflowVersion="dicom-v1", instanceId=state.instance_id, selectedPreset=state.selected, status=state.status,
             activeRunId=state.active_id, result=deepcopy(state.result),
-            baseline=deepcopy(state.baseline), error=state.error, presets=PRESETS)
+            baseline=deepcopy(state.baseline), error=state.error, stage=state.stage, presets=PRESETS)
     end
 end
-
 function require_preset(input)
     id = get(input, "preset", nothing)
     try
@@ -54,6 +54,7 @@ function begin_run!(state, input)
         state.status = "running"
         state.active_id = string(uuid4())
         state.error = nothing
+        state.stage = "simulating"
         return (id=state.active_id, preset=id)
     end
 end
@@ -61,20 +62,28 @@ end
 function execute_run!(state, job; compute=simulate_experiment,
                       logger=(error, trace)->@error("Simulation failed", exception=(error,trace)))
     try
-        result = compute(job.preset; run_id=job.id)
+        progress = stage -> lock(state.lock) do
+            state.active_id == job.id || error("Progress does not match the active run.")
+            state.stage = stage
+        end
+        result = compute === simulate_experiment ?
+            compute(job.preset; run_id=job.id, progress) : compute(job.preset; run_id=job.id)
         result["id"] == job.id || error("Simulation returned the wrong run identity.")
         lock(state.lock) do
             state.active_id == job.id || error("Simulation completion does not match the active run.")
             state.result = result
             state.status = "succeeded"
+            state.stage = "complete"
         end
     catch error
         logger(error, catch_backtrace())
         lock(state.lock) do
             if state.active_id == job.id
                 state.status = "failed"
-                state.error = "Simulation failed. The previous result, if shown, is not this run. See the local diagnostic log."
+                state.stage = "failed"
+                state.error = "Acquisition or DICOM verification failed. The previous result, if shown, is not this run. See the local diagnostic log."
             end
+
         end
     end
     nothing
@@ -97,5 +106,17 @@ function comparison(state)
         isnothing(state.result) && throw(ActionError(409, "There is no completed result to export."))
         (schemaVersion=1, synthetic=true, clinicalUse=false, instanceId=state.instance_id,
             current=deepcopy(state.result), baseline=deepcopy(state.baseline))
+    end
+end
+
+function dicom_file(state, run_id)
+    lock(state.lock) do
+        for result in (state.result, state.baseline)
+            if !isnothing(result) && result["id"] == run_id
+                haskey(result, "dicom") || throw(ActionError(409, "This result has no verified DICOM file."))
+                return base64decode(result["dicom"]["fileBase64"])
+            end
+        end
+        throw(ActionError(404, "This run is not the current or pinned acquisition."))
     end
 end

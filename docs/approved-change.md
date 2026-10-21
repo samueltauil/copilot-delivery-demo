@@ -2,6 +2,18 @@
 
 ## ScanLab expansion
 
+### Approved DICOM workbench implementation
+
+The owner approved the Image Integrity Workbench plan and instructed
+implementation to begin. Keep the fixed live simulation and add a synthetic
+DICOM write/read round trip, decoded-image comparison, linked display controls,
+inspectable metadata and fidelity evidence, and a Copilot-app-first rehearsal.
+Pin baseline remains the bounded ScanLab teaching task. DICOM is an output of
+each new computation, never an imported patient image or saved execution input.
+An imaging-scoped DICOM library and an independent developer/test parser are
+permitted. Do not add a PACS, arbitrary uploads, clinical algorithms, deployment,
+or hosted automation. Actual app GUI evidence remains a separate readiness gate.
+
 The owner approved a separate ScanLab experience: live-only CPU imaging with
 one synthetic 2D phantom and three motion presets, a shared browser/Copilot app
 Canvas interface, Pin baseline as the bounded live coding exercise, and a
@@ -12,6 +24,9 @@ First verify the numerical pipeline and the actual Canvas host. Reuse KomaMRI
 and maintained reconstruction/plotting components; do not reimplement MRI
 physics. Smaller phantom/resolution is permitted, but replay, clinical data,
 GPU requirements, deployments, and arbitrary scanner inputs are not.
+The single phantom is KomaMRI's bundled BrainWeb-derived `brain_phantom2D`.
+After the owner found the earlier analytical shape unrealistic, it replaced that shape.
+The phantom ships with the pinned library: no external download and no patient record.
 Use a separate pinned imaging environment. New dependencies are limited to the
 verified imaging/Canvas workflow. Existing remote-action boundaries below
 remain unchanged.

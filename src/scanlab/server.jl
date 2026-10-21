@@ -35,6 +35,16 @@ function create_app(state=SessionState(); token=string(uuid4()), compute=simulat
                 elseif path == "/api/compare" && request.method == "GET"
                     return json_response(200, comparison(state);
                         headers=["content-disposition"=>"attachment; filename=\"scanlab-comparison.json\""])
+                elseif startswith(path, "/api/dicom/")
+                    request.method == "GET" || return error_response(405, "Method not allowed."; headers=["allow"=>"GET"])
+                    run_id = path[length("/api/dicom/")+1:end]
+                    occursin(r"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$", run_id) ||
+                        throw(ActionError(400, "Provide an exact acquisition run ID."))
+                    return HTTP.Response(200, [
+                        "content-type"=>"application/dicom", "cache-control"=>"no-store",
+                        "x-content-type-options"=>"nosniff",
+                        "content-disposition"=>"attachment; filename=\"scanlab-$run_id.dcm\"",
+                    ], dicom_file(state, run_id))
                 elseif path in ("/api/run", "/api/preset", "/api/pin") && request.method == "POST"
                     input = parse_input(request)
                     expected_key = path == "/api/pin" ? "runId" : "preset"
@@ -48,6 +58,7 @@ function create_app(state=SessionState(); token=string(uuid4()), compute=simulat
                             logger(error, catch_backtrace())
                             lock(state.lock) do
                                 state.status = "failed"
+                                state.stage = "failed"
                                 state.error = "The simulation could not start. No new result was created."
                             end
                             throw(ActionError(500, state.error))

@@ -15,6 +15,15 @@ export function validateConnection(value) {
   return value;
 }
 
+// Agent-facing views keep the DICOM hash and length but omit the encoded file bytes.
+export function withoutDicomBytes(value) {
+  if (Array.isArray(value)) return value.map(withoutDicomBytes);
+  if (!value || typeof value !== 'object') return value;
+  return Object.fromEntries(Object.entries(value)
+    .filter(([key]) => key !== 'fileBase64')
+    .map(([key, item]) => [key, withoutDicomBytes(item)]));
+}
+
 export async function callBackend(connection, action, input) {
   validateConnection(connection);
   const routes = { state: '/api/state', run: '/api/run', preset: '/api/preset', pin: '/api/pin', compare: '/api/compare' };
