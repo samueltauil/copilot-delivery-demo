@@ -28,7 +28,7 @@ The page shows four stages. They are real: the service reports each one as it
 happens.
 
 1. **Simulate the scan.** KomaMRI simulates the scanner and the head. MRIReco
-   turns the signal into a 128 × 128 picture.
+   turns the signal into a 192 × 192 picture.
 2. **Save as DICOM file.** DICOM.jl writes the picture as a DICOM file, the
    standard format for medical images.
 3. **Open the file again.** The file is read back from its bytes.
@@ -47,11 +47,12 @@ ScanLab does not implement MRI physics. It uses libraries that already do
 - **Head:** KomaMRI's bundled `brain_phantom2D`, a slice of the BrainWeb digital
   brain model, sampled at 1.0 mm with 25,971 simulated points. It is a published
   synthetic phantom, not a person.
-- **Scanner:** KomaMRI's built-in single-shot EPI sequence, simulated on the CPU
-  and reconstructed to 128 × 128 pixels over a 0.23 m field of view.
+- **Scanner:** KomaMRI's built-in single-shot EPI sequence, simulated on two CPU
+  threads and reconstructed to 192 × 192 pixels (about 1.2 mm each) over a 0.23 m
+  field of view. Two threads give exactly the same pixels as one, only faster.
 - **Movement:** the head shifts left and right while the scan is being read out.
   That is what produces the ghosting and blur.
-- **Brightness:** every image is divided by the same constant (3.8), so both
+- **Brightness:** every image is divided by the same constant (1.7), so both
   scans share one 0–1 scale. Nothing is normalized per image, so signal lost to
   movement stays visible.
 
@@ -67,7 +68,7 @@ synthetic subject, and unsigned 16-bit `MONOCHROME2` pixels.
 - Every scan gets new series and instance IDs. One synthetic study groups the
   scans in a session.
 - No patient orientation, pixel spacing or scanner details are claimed, and the
-  128 × 128 image is never enlarged to look more detailed.
+  192 × 192 image is never enlarged to look more detailed.
 - Storing decimals as 16-bit integers rounds them. The rounding error is
   measured, and it must not exceed half of one stored step. Stored pixels,
   dimensions and identifiers must come back exactly. Any failure rejects the
@@ -95,7 +96,9 @@ its own run ID while another scan runs or fails.
 - **Biggest change:** the change at the single most different pixel.
 
 Zoom, pan, brightness and contrast move both pictures together and never change
-the stored pixels. **Save comparison** downloads a JSON file with both images,
+the stored pixels. Like most image viewers, the screen blends neighbouring pixels
+instead of drawing hard squares; the file and the measurements use the stored
+pixels only. **Save comparison** downloads a JSON file with both images,
 the DICOM bytes and the evidence. It contains no access token.
 
 ## Words on the page and what they mean
@@ -124,13 +127,13 @@ the Copilot app Canvas use the same page and the same running state.
   Only the three preset IDs are accepted. There are no uploads, file paths or
   scanner settings to change.
 - **Responsive.** Julia starts with `--threads=2,1`, so the web server keeps
-  answering while a scan computes on another thread. The launcher sets this, and
-  the service refuses to start without it.
+  answering on its own thread while a scan computes on the two worker threads.
+  The launcher sets this, and the service refuses to start without it.
 - **Warm start.** Starting takes about three minutes the first time. Before it
   prints the URL, the service rehearses a scan, keep, compare and download on a
   throwaway session and discards the result. The first live click is then quick.
-  A warm scan took about 20 seconds on the development machine; slower CPUs may
-  take longer.
+  A warm scan took about 20 seconds without movement and up to about 40 seconds
+  with it on the development machine; slower CPUs may take longer.
 - **Local only.** Every `/api` request needs the session token in an
   `x-scanlab-token` header, and the browser origin is checked. The page receives
   the token in the URL fragment. Do not share that URL or a screenshot of it.

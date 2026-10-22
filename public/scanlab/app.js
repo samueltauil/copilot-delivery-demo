@@ -8,7 +8,7 @@ import {
 } from '/story.js';
 
 const WORKFLOW_VERSION = 'dicom-v2';
-const DEFAULT_SIZE = 128;
+const DEFAULT_SIZE = 192;
 const POLL_RUNNING_MS = 400;
 const POLL_IDLE_MS = 1000;
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -17,12 +17,16 @@ const PLOT = { baseline: 'baseline-image', current: 'current-image', difference:
 const PANE = { baseline: 'pane-baseline', current: 'pane-current', difference: 'pane-difference' };
 const GRAY = [[0, '#000000'], [1, '#ffffff']];
 const HEAT = [[0, '#000004'], [0.2, '#3b0f70'], [0.4, '#8c2981'], [0.6, '#de4968'], [0.8, '#fe9f6d'], [1, '#fcfdbf']];
+// Blend between pixels on screen, as image viewers do; stored pixels are unchanged.
+const SMOOTHING = 'best';
 const PLOT_CONFIG = { staticPlot: true, displayModeBar: false, displaylogo: false, responsive: false };
 const OFFLINE_STATUS = 'Disconnected. Existing images are not new results.';
 const COMPARE_HINT = 'Keep a reference, then scan again to compare';
 const DEFAULT_VIEW = { zoom: 1, panX: 0, panY: 0, brightness: 0, contrast: 100 };
 
 const $ = (id) => document.getElementById(id);
+// Keep a number and its unit on one line ("19.3 s"), on screen only.
+const keepUnits = (text) => text.replace(/(\d) s\b/g, '$1\u00a0s');
 const IDLE_READOUT = $('readout').textContent;
 
 const token = (() => {
@@ -258,7 +262,7 @@ function renderControls() {
     line = 'The action did not complete.';
     tone = 'bad';
   } else {
-    line = statusLine(live);
+    line = keepUnits(statusLine(live));
     if (live?.status === 'failed') tone = 'bad';
   }
   setText($('status'), line);
@@ -400,7 +404,7 @@ function renderCopilot() {
       dot.setAttribute('aria-hidden', 'true');
       const when = el('time', '', relativeTime(entry.at));
       when.dateTime = entry.at;
-      item.append(dot, el('span', 'feed-text', entry.text), when);
+      item.append(dot, el('span', 'feed-text', keepUnits(entry.text)), when);
       return item;
     }) : [el('li', 'feed-empty', 'Nothing yet. Actions from you and from Copilot will show up here.')]));
   });
@@ -525,13 +529,13 @@ function grayTrace(result) {
   const z = zOf(result);
   if (!Array.isArray(z)) return null;
   const { zmin, zmax } = grayWindow(view);
-  return { size: z.length, trace: { type: 'heatmap', z, zmin, zmax, colorscale: GRAY, showscale: false, hoverinfo: 'skip', transpose: false } };
+  return { size: z.length, trace: { type: 'heatmap', z, zmin, zmax, colorscale: GRAY, zsmooth: SMOOTHING, showscale: false, hoverinfo: 'skip', transpose: false } };
 }
 
 function heatTrace() {
   const map = getDifference();
   if (!map) return null;
-  return { size: map.z.length, trace: { type: 'heatmap', z: map.z, zmin: 0, zmax: map.scaleMax, colorscale: HEAT, showscale: false, hoverinfo: 'skip', transpose: false }, map };
+  return { size: map.z.length, trace: { type: 'heatmap', z: map.z, zmin: 0, zmax: map.scaleMax, colorscale: HEAT, zsmooth: SMOOTHING, showscale: false, hoverinfo: 'skip', transpose: false }, map };
 }
 
 function develop(plot) {

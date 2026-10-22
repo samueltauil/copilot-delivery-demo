@@ -1,8 +1,9 @@
 # Presenting ScanLab
 
 A step-by-step script for showing ScanLab and GitHub Copilot together. Rehearse
-it once on your own machine first. A warm scan took about 20 seconds on the
-measured development machine; allow extra time on slower CPUs.
+it once on your own machine first. A warm scan took about 20 seconds without
+movement and up to about 40 seconds with it on the measured development
+machine; allow extra time on slower CPUs.
 
 ## Before the audience joins
 

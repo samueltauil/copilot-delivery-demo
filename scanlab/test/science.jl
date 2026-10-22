@@ -9,7 +9,7 @@
         @test result["parameters"].phantomSpacingMm == 1.0
         @test result["parameters"].backend == "CPU"
         @test result["parameters"].spins == 25971
-        @test result["parameters"].intensityScale == 3.8
+        @test result["parameters"].intensityScale == 1.7
         @test all(value -> 0 <= value <= 1, Iterators.flatten(result["pixels"]))
         @test result["parameters"].displayRange == [0, 1]
         @test result["computeSeconds"] > 0
@@ -27,10 +27,10 @@
     @test repeated["id"] != results[1]["id"]
     @test repeated["inputHash"] == results[1]["inputHash"]
     @test repeated["pixels"] == results[1]["pixels"]
-    @test isapprox(norm(matrices[2] - matrices[1]) / norm(matrices[1]), 0.599441; rtol=1e-3)
-    @test isapprox(norm(matrices[3] - matrices[1]) / norm(matrices[1]), 0.640771; rtol=1e-3)
+    @test isapprox(norm(matrices[2] - matrices[1]) / norm(matrices[1]), 0.719671; rtol=1e-3)
+    @test isapprox(norm(matrices[3] - matrices[1]) / norm(matrices[1]), 0.760810; rtol=1e-3)
 
-    # Invoke the maintained libraries independently to verify the adapter's result.
+    # Invoke the maintained libraries independently (single-threaded) to verify the adapter's result.
     object, sequence, scanner = ScanLab.experiment_inputs("still")
     raw = ScanLab.simulate(object, sequence, scanner;
         sim_params=Dict{String,Any}("gpu"=>false, "Nthreads"=>1, "precision"=>"f64"), verbose=false)

@@ -1,9 +1,12 @@
-const RESOLUTION = 128
+const RESOLUTION = 192
 const FOV_METERS = 0.23
 const PHANTOM_SUBSAMPLING = 2
 # Fixed scale (not per-run) keeps intensity loss from motion visible in the 0–1 window.
-const INTENSITY_SCALE = 3.8
-const MODEL_VERSION = "brainweb-phantom-epi-v2"
+const INTENSITY_SCALE = 1.7
+# The two default-pool workers from --threads=2,1; the web server keeps the
+# interactive thread. Two threads give bit-identical pixels to one.
+const SIMULATION_THREADS = 2
+const MODEL_VERSION = "brainweb-phantom-epi-v3"
 const PRESETS = (
     (id="still", label="No motion", motionMm=0, description="The reference acquisition."),
     (id="gentle", label="Controlled shift", motionMm=8, description="An 8 mm translation during readout."),
@@ -42,7 +45,7 @@ end
 function compute_image(id)
     object, sequence, scanner = experiment_inputs(id)
     raw = simulate(object, sequence, scanner;
-        sim_params=Dict{String,Any}("gpu"=>false, "Nthreads"=>1, "precision"=>"f64"),
+        sim_params=Dict{String,Any}("gpu"=>false, "Nthreads"=>SIMULATION_THREADS, "precision"=>"f64"),
         verbose=false)
     acquisition = AcquisitionData(raw)
     acquisition.traj[1].circular = false

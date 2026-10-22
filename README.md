@@ -69,9 +69,10 @@ and runs every ScanLab test, which takes several minutes. `scanlab` starts the
 app. Wait for `ScanLab ready: <url>` and open that address.
 
 The first start takes about three minutes while Julia compiles and rehearses a
-scan on a throwaway session. A warmed scan took about 20 seconds on the measured
-development machine; allow extra time on slower CPUs. The address carries a
-private token for this computer, so do not share it.
+scan on a throwaway session. A warmed scan took about 20 seconds without movement
+and up to about 40 seconds with it on the measured development machine; allow
+extra time on slower CPUs. The address carries a private token for this
+computer, so do not share it.
 
 ## Use it with GitHub Copilot
 
