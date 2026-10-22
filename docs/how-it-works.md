@@ -28,7 +28,7 @@ The page shows four stages. They are real: the service reports each one as it
 happens.
 
 1. **Simulate the scan.** KomaMRI simulates the scanner and the head. MRIReco
-   turns the signal into a 96 × 96 picture.
+   turns the signal into a 128 × 128 picture.
 2. **Save as DICOM file.** DICOM.jl writes the picture as a DICOM file, the
    standard format for medical images.
 3. **Open the file again.** The file is read back from its bytes.
@@ -45,13 +45,13 @@ ScanLab does not implement MRI physics. It uses libraries that already do
 (see [credits](credits.md)).
 
 - **Head:** KomaMRI's bundled `brain_phantom2D`, a slice of the BrainWeb digital
-  brain model, sampled at 1.5 mm with 11,554 simulated points. It is a published
+  brain model, sampled at 1.0 mm with 25,971 simulated points. It is a published
   synthetic phantom, not a person.
 - **Scanner:** KomaMRI's built-in single-shot EPI sequence, simulated on the CPU
-  and reconstructed to 96 × 96 pixels over a 0.23 m field of view.
+  and reconstructed to 128 × 128 pixels over a 0.23 m field of view.
 - **Movement:** the head shifts left and right while the scan is being read out.
   That is what produces the ghosting and blur.
-- **Brightness:** every image is divided by the same constant (3.0), so both
+- **Brightness:** every image is divided by the same constant (3.8), so both
   scans share one 0–1 scale. Nothing is normalized per image, so signal lost to
   movement stays visible.
 
@@ -67,7 +67,7 @@ synthetic subject, and unsigned 16-bit `MONOCHROME2` pixels.
 - Every scan gets new series and instance IDs. One synthetic study groups the
   scans in a session.
 - No patient orientation, pixel spacing or scanner details are claimed, and the
-  96 × 96 image is never enlarged to look more detailed.
+  128 × 128 image is never enlarged to look more detailed.
 - Storing decimals as 16-bit integers rounds them. The rounding error is
   measured, and it must not exceed half of one stored step. Stored pixels,
   dimensions and identifiers must come back exactly. Any failure rejects the
@@ -129,7 +129,8 @@ the Copilot app Canvas use the same page and the same running state.
 - **Warm start.** Starting takes about three minutes the first time. Before it
   prints the URL, the service rehearses a scan, keep, compare and download on a
   throwaway session and discards the result. The first live click is then quick.
-  A warm scan takes about five seconds.
+  A warm scan took about 20 seconds on the development machine; slower CPUs may
+  take longer.
 - **Local only.** Every `/api` request needs the session token in an
   `x-scanlab-token` header, and the browser origin is checked. The page receives
   the token in the URL fragment. Do not share that URL or a screenshot of it.

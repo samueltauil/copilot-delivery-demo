@@ -1,9 +1,9 @@
-const RESOLUTION = 96
+const RESOLUTION = 128
 const FOV_METERS = 0.23
-const PHANTOM_SUBSAMPLING = 3
-# Fixed scale (not per-run) so intensity loss from motion stays visible in the 0–1 window.
-const INTENSITY_SCALE = 3.0
-const MODEL_VERSION = "brainweb-phantom-epi-v1"
+const PHANTOM_SUBSAMPLING = 2
+# Fixed scale (not per-run) keeps intensity loss from motion visible in the 0–1 window.
+const INTENSITY_SCALE = 3.8
+const MODEL_VERSION = "brainweb-phantom-epi-v2"
 const PRESETS = (
     (id="still", label="No motion", motionMm=0, description="The reference acquisition."),
     (id="gentle", label="Controlled shift", motionMm=8, description="An 8 mm translation during readout."),
@@ -18,7 +18,7 @@ function preset_for(id)
     PRESETS[index]
 end
 
-# KomaMRI's bundled BrainWeb-derived digital brain phantom (1.5 mm spin spacing).
+# KomaMRI's bundled BrainWeb-derived digital brain phantom (1.0 mm spin spacing).
 brain_phantom() = brain_phantom2D(; axis="axial", ss=PHANTOM_SUBSAMPLING)
 
 # Rotate the reconstruction grid so anterior is at the top, then apply the fixed scale.

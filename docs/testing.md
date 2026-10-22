@@ -12,11 +12,11 @@ prerequisite is a failed result, not a reason to skip a test.
 
 | Command | What it runs | Takes about |
 |---|---|---|
-| `npm run scanlab:check` | Every ScanLab test: Julia, Node and browser | 9 minutes |
+| `npm run scanlab:check` | Every ScanLab test: Julia, Node and browser | About 12 minutes |
 | `npm run scanlab:test` | ScanLab Julia and Node tests | 4 minutes |
-| `npm run scanlab:e2e` | ScanLab browser tests | 5 minutes |
+| `npm run scanlab:e2e` | ScanLab browser tests | About 8 minutes |
 | `npm run check` | Every request desk test: Julia, Node and browser | 2 minutes |
-| `npm run check:all` | Both of the above | 11 minutes |
+| `npm run check:all` | Both of the above | About 14 minutes |
 | `node --test test/*.test.js scanlab/test/*.test.js` | Every Node test. No Julia or browser needed | 10 seconds |
 
 The times are rough, from a Windows development machine after setup. While you
@@ -37,7 +37,7 @@ which Git ignores.
 
 | Suite | Files | What it proves |
 |---|---|---|
-| Julia: imaging | `scanlab/test/science.jl` | Each of the three motion presets runs the real KomaMRI and MRIReco code and gives a finite 96 × 96 picture. The same preset gives the same picture again, in a new run. How far each preset changes the picture is pinned. An independent call to the libraries gives the same pixels |
+| Julia: imaging | `scanlab/test/science.jl` | Each of the three motion presets runs the real KomaMRI and MRIReco code and gives a finite 128 × 128 picture. The same preset gives the same picture again, in a new run. How far each preset changes the picture is pinned. An independent call to the libraries gives the same pixels |
 | Julia: runs and the reference | `scanlab/test/state.jl` | Bad input is refused. Only one scan runs at a time. The reference never changes after later scans or a failed scan, and a failure says so. Every run computes; nothing is replayed. The activity list names who did what, and unknown names are refused |
 | Julia: DICOM file | `scanlab/test/dicom.jl` | A saved file reads back to the same picture within a measured rounding error. It is a Secondary Capture marked synthetic, with no invented orientation or pixel spacing. Each save gets new IDs. The reference file's bytes never change |
 | Julia: service | `scanlab/test/server.jl` | Routes, methods, the session token and origin checks. A running scan never freezes the server. The start-up rehearsal leaves no result behind |
@@ -82,13 +82,13 @@ Playwright 1.64.0 (Chromium). Everything passed and nothing was skipped.
 
 | Suite | Passed | Test time |
 |---|---|---|
-| ScanLab Julia: imaging | 61 of 61 | 2 min 19 s |
-| ScanLab Julia: runs and the reference | 47 of 47 | 1.9 s |
-| ScanLab Julia: activity and change measurements | 40 of 40 | 1.1 s |
-| ScanLab Julia: DICOM file | 26 of 26 | 2.0 s |
-| ScanLab Julia: service | 82 of 82 | 29.8 s |
-| ScanLab Node | 38 of 38 | 5.8 s |
-| ScanLab browser | 23 of 23 | 5.3 min |
+| ScanLab Julia: imaging | 70 of 70 | 3 min 23 s |
+| ScanLab Julia: runs and the reference | 47 of 47 | 1.7 s |
+| ScanLab Julia: activity and change measurements | 40 of 40 | 0.3 s |
+| ScanLab Julia: DICOM file | 26 of 26 | 0.9 s |
+| ScanLab Julia: service | 82 of 82 | 20.5 s |
+| ScanLab Node | 38 of 38 | 3.1 s |
+| ScanLab browser | 23 of 23 | 8.0 min |
 | Request desk Julia: request store | 39 of 39 | 1.7 s |
 | Request desk Julia: HTTP API | 84 of 84 | 29.4 s |
 | Request desk Julia: study | 14 of 14 | 10.4 s |
@@ -104,8 +104,8 @@ a record of one run, not a promise. Run the commands yourself before you present
   through the same web page it shows. The host app blocks desktop automation of
   itself, so no test or recording drives the Copilot app. A person has to open the
   canvas, run No motion, keep the reference and run Controlled shift. The
-  screenshots in the README are browser captures. Their "Copilot" entries were sent
-  through the Canvas adapter, not by a live Copilot session.
+  README screenshots are browser captures. Their "Copilot" entries use the local
+  API's self-reported actor label, not a live Copilot session or Canvas action.
 - **Screen readers.** The tests cover keyboard access, a skip link and tap size.
   They do not replace a pass with a screen reader.
 - **Clinical meaning.** The numbers describe a simulated picture of a published

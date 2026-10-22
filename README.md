@@ -46,9 +46,9 @@ real run, and a plain-words activity list that names who did what.*
 |---|---|
 | ![ScanLab controls on a phone](docs/images/scanlab-phone-controls.png) | ![ScanLab comparison on a phone](docs/images/scanlab-phone-compare.png) |
 
-These are real browser captures of the running app, using practice data. The
-"Copilot" entries in the activity list were sent through the same canvas actions
-the Copilot app calls. They are not from a live Copilot app session.
+These are real browser captures of the running app with synthetic data. The
+"Copilot" activity entries were added by the local screenshot harness through the
+API's display label; they do not come from a live Copilot app session.
 
 ## Quick start
 
@@ -69,8 +69,9 @@ and runs every ScanLab test, which takes several minutes. `scanlab` starts the
 app. Wait for `ScanLab ready: <url>` and open that address.
 
 The first start takes about three minutes while Julia compiles and rehearses a
-scan on a throwaway session. After that, a scan takes about five seconds. The
-address carries a private token for this computer, so do not share it.
+scan on a throwaway session. A warmed scan took about 20 seconds on the measured
+development machine; allow extra time on slower CPUs. The address carries a
+private token for this computer, so do not share it.
 
 ## Use it with GitHub Copilot
 

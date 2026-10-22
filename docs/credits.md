@@ -34,6 +34,8 @@ This is a published digital phantom, not a patient record. Please cite:
 - B. Aubert-Broche, M. Griffin, G. B. Pike, A. C. Evans, D. L. Collins, "Twenty new
   digital brain phantoms for creation of validation image data bases,"
   *IEEE Trans. Med. Imaging* 25(11), 2006.
+- C. A. Cocosco, V. Kollokian, R. K.-S. Kwan, A. C. Evans, "BrainWeb: Online
+  Interface to a 3D MRI Simulated Brain Database," *NeuroImage* 5(4), 1997.
 - C. Castillo-Passi et al., "KomaMRI.jl: an open-source framework for general MRI
   simulations with GPU acceleration," *Magnetic Resonance in Medicine* 90(1), 2023.
 
@@ -50,14 +52,14 @@ not claim conformance certification.
 
 ## Reference datasets (evaluated, not bundled)
 
-ScanLab ships no external image files. Its only image source is the BrainWeb-derived phantom that
-the pinned KomaMRI library bundles (see above).
-These candidates were reviewed for a possible read-only reference study. None is included,
-because adding one would expand the approved synthetic-only scope.
+ScanLab ships no external image files. Its only image source is the BrainWeb-derived
+phantom that the pinned KomaMRI library bundles (see above). The live experiment
+remains limited to that fixed phantom. A separate reference image is not bundled.
 
 | Candidate | Description | License | Status |
 |---|---|---|---|
-| [pydicom-data](https://github.com/pydicom/pydicom-data) `MR_small.dcm` | 64×64 MR slice, downsized from NEMA WG-04 `MR1_UNC`; patient-like names replaced | Repository is MIT, © 2020 Dicom in Python. The file notes say "no restriction" is believed | Preferred candidate; awaiting approval |
+| [BrainWeb Normal Brain Database](https://brainweb.bic.mni.mcgill.ca/brainweb/selection_normal.html) | Three-dimensional simulated T1-, T2- and PD-weighted brain volumes with selectable noise and slice-thickness variants | The reviewed pages request citation but do not establish redistribution terms | Best fit for a synthetic visual reference; not downloaded or bundled pending terms review |
+| [pydicom-data](https://github.com/pydicom/pydicom-data) `MR_small.dcm` | 64×64 MR slice, downsized from NEMA WG-04 `MR1_UNC`; patient-like names replaced | Repository is MIT, © 2020 Dicom in Python. The file notes say "no restriction" is believed | Not selected; BrainWeb is a closer synthetic visual reference |
 | [TCIA Phantom FDA](https://www.cancerimagingarchive.net/collection/phantom-fda/) | CT of a physical anthropomorphic chest phantom; no human subjects | See the TCIA collection page; citation required | Large; not evaluated further |
 | Hugging Face [`ndonyapour/dicom-sample-files`](https://huggingface.co/datasets/ndonyapour/dicom-sample-files) | 10–40 MB CT/MR archives | MIT tag; provenance unclear | Rejected |
 | Hugging Face `UniqueData/dicom-brain-dataset`, `AIxBlock/MRI-brain-cancer-dicom-100-plus-patients` | Brain MRI sets | Non-commercial (CC BY-NC variants) | Rejected |

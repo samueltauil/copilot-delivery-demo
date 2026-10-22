@@ -120,7 +120,7 @@ test('fresh startup has no preloaded or warm-up result', async ({ page }) => {
 });
 
 test('scan, keep a reference, scan again: the reference never changes', async ({ page }) => {
-  // Three live 96×96 brain simulations plus full-pixel DICOM verification.
+  // Three live 128×128 brain simulations plus full-pixel DICOM verification.
   test.setTimeout(240000);
   const errors = trackErrors(page);
   await open(page);
@@ -228,7 +228,7 @@ test('the saved DICOM file is exactly what the page shows', async ({ page }) => 
   expect(dataset.string('x00080064')).toBe('SYN');
   expect(dataset.string('x00020010')).toBe('1.2.840.10008.1.2.1');
   const size = baseline.parameters.resolution;
-  expect(size).toBe(96);
+  expect(size).toBe(128);
   expect(dataset.uint16('x00280010')).toBe(size);
   expect(dataset.uint16('x00280011')).toBe(size);
   expect(dataset.uint16('x00280100')).toBe(16);
@@ -261,11 +261,11 @@ test('zoom, pan, brightness and contrast move every image together', async ({ pa
 
   await page.locator('#zoom-in').click();
   await expect(page.locator('#zoom-label')).toHaveText('1.25×');
-  await expect.poll(async () => { const [view] = await sideViews(page); return view.x[1] - view.x[0]; }).toBeCloseTo(96 / 1.25, 3);
+  await expect.poll(async () => { const [view] = await sideViews(page); return view.x[1] - view.x[0]; }).toBeCloseTo(128 / 1.25, 3);
   let [reference, current] = await sideViews(page);
   expect(current).toEqual(reference);
   for (let step = 0; step < 3; step++) await page.locator('#zoom-in').click();
-  await expect.poll(async () => { const [view] = await sideViews(page); return view.x[1] - view.x[0]; }).toBeCloseTo(48, 3);
+  await expect.poll(async () => { const [view] = await sideViews(page); return view.x[1] - view.x[0]; }).toBeCloseTo(64, 3);
 
   // Dragging one image moves both by the same amount.
   const [startView] = await sideViews(page);
@@ -279,7 +279,7 @@ test('zoom, pan, brightness and contrast move every image together', async ({ pa
   await expect.poll(async () => (await sideViews(page))[1].x[0] - startView.x[0]).toBeGreaterThan(8);
   [reference, current] = await sideViews(page);
   expect(current).toEqual(reference);
-  expect(current.x[0] - startView.x[0]).toBeLessThan(11);
+  expect(current.x[0] - startView.x[0]).toBeCloseTo(12.8, 0);
   expect(current.y).toEqual(startView.y);
 
   await page.locator('#pane-current .frame').focus();
@@ -314,7 +314,7 @@ test('zoom, pan, brightness and contrast move every image together', async ({ pa
   await page.keyboard.press('0');
   await expect(page.locator('#zoom-label')).toHaveText('1×');
   await expect(page.locator('#contrast-value')).toHaveText('100%');
-  await expect.poll(async () => { const [view] = await sideViews(page); return [view.x[1] - view.x[0], view.zmin, view.zmax]; }).toEqual([96, 0, 1]);
+  await expect.poll(async () => { const [view] = await sideViews(page); return [view.x[1] - view.x[0], view.zmin, view.zmax]; }).toEqual([128, 0, 1]);
   [reference, current] = await sideViews(page);
   expect(current).toEqual(reference);
 
