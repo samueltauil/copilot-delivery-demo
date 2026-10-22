@@ -3,6 +3,11 @@ import { mkdir, open, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { juliaRuntime } from './julia-runtime.js';
 
+// Thread 1 is reserved for the web server; scans run on the two worker threads.
+// Without a reserved thread a scan can land on the one that owns Julia's event
+// loop, and the page freezes until the scan ends.
+export const JULIA_THREADS = '--threads=2,1';
+
 export function validateConnection(value) {
   const url = new URL(value.url);
   const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/;
@@ -24,14 +29,35 @@ export function withoutDicomBytes(value) {
     .map(([key, item]) => [key, withoutDicomBytes(item)]));
 }
 
-export async function callBackend(connection, action, input) {
+// Compact view for agents: also drops the image arrays and plot figure (about 400 KB per result).
+// Evidence (hashes, run IDs, timings), change metrics and the activity list stay.
+const BULKY_KEYS = new Set(['fileBase64', 'figure', 'pixels']);
+export function forAgent(value) {
+  if (Array.isArray(value)) return value.map(forAgent);
+  if (!value || typeof value !== 'object') return value;
+  return Object.fromEntries(Object.entries(value)
+    .filter(([key]) => !BULKY_KEYS.has(key))
+    .map(([key, item]) => [key, forAgent(item)]));
+}
+
+export const ACTORS = ['you', 'copilot', 'script'];
+
+// `actor` says who is asking, so the workbench activity list can show it. It is
+// self-reported display information, not authentication.
+export async function callBackend(connection, action, input, { actor = 'script' } = {}) {
   validateConnection(connection);
-  const routes = { state: '/api/state', run: '/api/run', preset: '/api/preset', pin: '/api/pin', compare: '/api/compare' };
+  const routes = {
+    state: '/api/state', status: '/api/status', run: '/api/run', preset: '/api/preset', pin: '/api/pin', compare: '/api/compare'
+  };
   if (!Object.hasOwn(routes, action)) throw new Error('Unknown ScanLab action.');
-  const readOnly = ['state', 'compare'].includes(action);
+  if (!ACTORS.includes(actor)) throw new Error('Unknown ScanLab actor.');
+  const readOnly = ['state', 'status', 'compare'].includes(action);
   const response = await fetch(connection.url + routes[action], {
     method: readOnly ? 'GET' : 'POST',
-    headers: { 'x-scanlab-token': connection.token, ...(readOnly ? {} : { 'content-type': 'application/json' }) },
+    headers: {
+      'x-scanlab-token': connection.token, 'x-scanlab-actor': actor,
+      ...(readOnly ? {} : { 'content-type': 'application/json' })
+    },
     body: readOnly ? undefined : JSON.stringify(input),
     signal: AbortSignal.timeout(10000)
   });
@@ -102,7 +128,7 @@ export async function startBackend(root, {
     if (connection && current?.instanceId === connection.instanceId) await rm(activeFile);
   })();
   try {
-    child = spawn(runtime.executable, [...runtime.args, '--threads=2', join(root, 'scripts', 'serve-scanlab.jl')], {
+    child = spawn(runtime.executable, [...runtime.args, JULIA_THREADS, join(root, 'scripts', 'serve-scanlab.jl')], {
       cwd: root, env: runtime.env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true
     });
     child.stderr.on('data', (chunk) => log(chunk.toString().trimEnd()));

@@ -22,7 +22,9 @@ npm run scanlab:control -- state
 The bridge accepts only known commands/presets, uses the existing service's
 capability internally, and prints run IDs/hashes rather than that capability.
 It neither starts another simulator nor replays results. Poll until completion;
-do not pin a running or stale result.
+do not pin a running or stale result. The page's activity list shows bridge
+calls as "A script" (the bridge identifies itself as `script`), unlike the
+Canvas, which is shown as Copilot.
 
 Suggested agent prompt:
 

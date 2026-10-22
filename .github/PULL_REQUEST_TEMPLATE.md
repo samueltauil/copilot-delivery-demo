@@ -14,7 +14,7 @@ Excluded changes:
 ## Validation
 Exact commands and exit status:
 Tested commit:
-UI/API evidence:
+UI/API evidence: <!-- For ScanLab, paste the pull request note from the page's "Copy pull request note" button or the Canvas get_pr_note action. -->
 Failures and remaining gaps:
 
 ## Review and human disposition

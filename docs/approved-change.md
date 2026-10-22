@@ -35,6 +35,16 @@ The approved detailed implementation plan is retained in the authoring session,
 not in the repository. Actual results and limitations belong in the evidence
 record; a browser test alone cannot certify the Copilot app.
 
+### Plain-language interface and Copilot-first upgrade
+
+The owner later asked for a higher-quality shared interface for the web page and
+the Copilot app Canvas: detail-driven, sleek, plain-language, with GitHub Copilot
+as a fundamental part of the experience. This was implemented from that request
+under the shared browser/Canvas scope above; there was no separate plan-approval
+step for it. It adds no data, dependencies, hosted actions or scientific change.
+The page calls pinning "Keep as reference"; the API, Canvas actions and code
+still call it pin baseline, and it remains the bounded live coding exercise.
+
 The owner requested a simple, storytelling-based Julia/JuliaHealth HLS
 demonstration, with existing projects reused instead of recreated. After review
 and a proposed plan, the owner explicitly instructed implementation to begin.

@@ -1,28 +1,27 @@
 diff --git a/src/scanlab/state.jl b/src/scanlab/state.jl
 --- a/src/scanlab/state.jl
 +++ b/src/scanlab/state.jl
-@@ -80,7 +80,7 @@
+@@ -176,7 +176,7 @@
+         isnothing(state.result) && throw(ActionError(409, "Run a successful experiment before pinning a baseline."))
          get(input, "runId", nothing) == state.result["id"] ||
              throw(ActionError(409, "The requested result is not the latest completed run."))
 -        state.baseline = deepcopy(state.result)
 +        throw(ActionError(501, "Baseline comparison is not implemented in this teaching start."))
+         record!(state, "reference_kept", actor; runId=state.baseline["id"], preset_fields(state.baseline)...)
      end
      snapshot(state)
- end
- 
+
 diff --git a/public/scanlab/app.js b/public/scanlab/app.js
 --- a/public/scanlab/app.js
 +++ b/public/scanlab/app.js
-@@ -115,8 +115,8 @@
-   $('run').textContent = running ? 'Computing…' : 'Run experiment';
-   $('preset').disabled = running || requesting;
--  $('pin').disabled = running || requesting || !state.result;
+@@ -475,8 +475,8 @@
+   $('run').disabled = !state || disconnected;
+   $('run').setAttribute('aria-disabled', String(busy));
+   $('run').setAttribute('aria-busy', String(running));
+-  $('pin').disabled = busy || disconnected || !state?.result || isKept();
+-  for (const id of viewControls) $(id).disabled = !state?.result;
 +  $('pin').disabled = true;
-   $('export').disabled = running || requesting || !state.result;
--  $('zoom').disabled = !state.result;
--  $('reset-view').disabled = !state.result;
-+  $('zoom').disabled = true;
-+  $('reset-view').disabled = true;
--  for (const id of viewInputs) $(id).disabled = !state.result;
-+  for (const id of viewInputs) $(id).disabled = true;
-   const labels = {
++  for (const id of viewControls) $(id).disabled = true;
+ }
+ 
+ function syncViewLabels() {

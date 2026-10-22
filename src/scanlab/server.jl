@@ -2,8 +2,12 @@ const PUBLIC_DIR = joinpath(@__DIR__, "..", "..", "public", "scanlab")
 const STATIC_ASSETS = Dict(
     "/" => ("index.html", "text/html; charset=utf-8"),
     "/app.js" => ("app.js", "text/javascript; charset=utf-8"),
+    "/story.js" => ("story.js", "text/javascript; charset=utf-8"),
     "/styles.css" => ("styles.css", "text/css; charset=utf-8"),
 )
+
+# An absent header means a script. Any value that is present must name a known actor.
+request_actor(request) = HTTP.header(request, "x-scanlab-actor", "script")
 
 function parse_input(request)
     media = lowercase(strip(first(split(HTTP.header(request, "Content-Type"), ';'))))
@@ -19,7 +23,7 @@ function parse_input(request)
 end
 
 function create_app(state=SessionState(); token=string(uuid4()), compute=simulate_experiment,
-                    launch=(f)->Threads.@spawn(f()), origin=Ref(""),
+                    launch=(f)->Threads.@spawn(:default, f()), origin=Ref(""),
                     asset=plotly_asset(), logger=(error, trace)->@error("ScanLab request failed", exception=(error,trace)))
     function handler(request)
         try
@@ -32,6 +36,8 @@ function create_app(state=SessionState(); token=string(uuid4()), compute=simulat
                     throw(ActionError(403, "This origin is not permitted."))
                 if path == "/api/state" && request.method == "GET"
                     return json_response(200, snapshot(state))
+                elseif path == "/api/status" && request.method == "GET"
+                    return json_response(200, status_snapshot(state))
                 elseif path == "/api/compare" && request.method == "GET"
                     return json_response(200, comparison(state);
                         headers=["content-disposition"=>"attachment; filename=\"scanlab-comparison.json\""])
@@ -46,31 +52,29 @@ function create_app(state=SessionState(); token=string(uuid4()), compute=simulat
                         "content-disposition"=>"attachment; filename=\"scanlab-$run_id.dcm\"",
                     ], dicom_file(state, run_id))
                 elseif path in ("/api/run", "/api/preset", "/api/pin") && request.method == "POST"
+                    actor = require_actor(request_actor(request))
                     input = parse_input(request)
                     expected_key = path == "/api/pin" ? "runId" : "preset"
                     Set(keys(input)) == Set([expected_key]) ||
                         throw(ActionError(400, "Provide only the required $expected_key field."))
                     if path == "/api/run"
-                        job = begin_run!(state, input)
+                        job = begin_run!(state, input; actor)
                         try
                             launch(() -> execute_run!(state, job; compute, logger))
                         catch error
                             logger(error, catch_backtrace())
-                            lock(state.lock) do
-                                state.status = "failed"
-                                state.stage = "failed"
-                                state.error = "The simulation could not start. No new result was created."
-                            end
-                            throw(ActionError(500, state.error))
+                            message = "The simulation could not start. No new result was created."
+                            fail_run!(state, job, message)
+                            throw(ActionError(500, message))
                         end
                         return json_response(202, (runId=job.id, preset=job.preset))
                     elseif path == "/api/preset"
-                        return json_response(200, select_preset!(state, input))
+                        return json_response(200, select_preset!(state, input; actor))
                     end
-                    return json_response(200, pin_baseline!(state, input))
-                elseif path in ("/api/state", "/api/compare", "/api/run", "/api/preset", "/api/pin")
+                    return json_response(200, pin_baseline!(state, input; actor))
+                elseif path in ("/api/state", "/api/status", "/api/compare", "/api/run", "/api/preset", "/api/pin")
                     return error_response(405, "Method not allowed.";
-                        headers=["allow" => (path in ("/api/state", "/api/compare") ? "GET" : "POST")])
+                        headers=["allow" => (path in ("/api/state", "/api/status", "/api/compare") ? "GET" : "POST")])
                 end
                 return error_response(404, "Not found.")
             elseif haskey(STATIC_ASSETS, path) || path == "/plotly.js"
@@ -91,4 +95,35 @@ function create_app(state=SessionState(); token=string(uuid4()), compute=simulat
         end
     end
     handler
+end
+
+# Without this, a person's first keep, compare and download would be the first time Julia compiles those
+# paths, and they would feel it as a pause. It takes the same first steps through the real request handlers
+# on a private session that is thrown away, so nothing it computes is ever shown.
+function warm_requests(; timeout=120, options...)
+    token = string(uuid4())
+    app = create_app(SessionState(); token, asset="", options...)
+    headers = ["x-scanlab-token"=>token, "content-type"=>"application/json"]
+    function call(method, path, payload=nothing)
+        body = isnothing(payload) ? UInt8[] : collect(codeunits(JSON.json(payload)))
+        response = app(HTTP.Request(method, path, headers, body))
+        200 <= response.status < 300 || error("Warm-up request $method $path returned status $(response.status).")
+        response
+    end
+    status() = JSON.parse(call("GET", "/api/status").body)
+    call("POST", "/api/preset", (preset="gentle",))
+    call("POST", "/api/run", (preset="gentle",))
+    deadline = time() + timeout
+    while status()["status"] == "running"
+        time() < deadline || error("The warm-up scan did not finish within $timeout seconds.")
+        sleep(0.05)
+    end
+    finished = status()
+    finished["status"] == "succeeded" || error("The warm-up scan did not succeed: $(something(finished["error"], "no details")).")
+    run_id = finished["resultId"]
+    call("POST", "/api/pin", (runId=run_id,))
+    call("GET", "/api/state")
+    call("GET", "/api/compare")
+    call("GET", "/api/dicom/$run_id")
+    nothing
 end

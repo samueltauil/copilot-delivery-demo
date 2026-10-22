@@ -2,15 +2,17 @@ include(joinpath(@__DIR__, "..", "src", "scanlab", "ScanLab.jl"))
 using .ScanLab
 
 try
-    Threads.nthreads() >= 2 || error("ScanLab needs two Julia threads to keep the UI responsive during simulation.")
+    Threads.nthreads(:interactive) >= 1 && Threads.nthreads(:default) >= 1 ||
+        error("ScanLab needs Julia started with --threads=2,1 (one thread for the web server, workers for scans) so the page stays live while a scan computes.")
     println(stderr, "Preparing the live simulation paths; no result will be retained.")
     ScanLab.plotly_asset()
     ScanLab.warmup()
+    ScanLab.warm_requests()
     state = ScanLab.SessionState()
     token = string(ScanLab.uuid4())
     origin = Ref("")
     app = ScanLab.create_app(state; token, origin)
-    for path in ("/api/state", "/", "/app.js", "/styles.css", "/plotly.js")
+    for path in ("/api/state", "/api/status", "/", "/app.js", "/story.js", "/styles.css", "/plotly.js")
         response = app(ScanLab.HTTP.Request("GET", path, ["x-scanlab-token"=>token]))
         response.status == 200 || error("Startup validation failed for $path.")
     end

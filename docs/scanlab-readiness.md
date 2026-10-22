@@ -42,7 +42,7 @@ the actual checkout. Compilation, dependency setup and dataset acceptance happen
 before the audience joins, never as an automation repair.
 
 If the host blocks Computer Use on Copilot itself, retain that exact limitation.
-A human can operate the existing Canvas and verify its two run IDs, unchanged
-pinned image/file hash, linked controls and DICOM download. Record that as human
+A human can operate the existing Canvas and verify its two run IDs, the unchanged
+reference (pinned) image and file fingerprint, linked controls and DICOM download. Record that as human
 app evidence, separately from automated browser evidence. Do not bypass the host
 through another UI control mechanism or relabel browser checks as app checks.

@@ -1,11 +1,14 @@
 # ScanLab: a live HLS experiment with GitHub Copilot
 
-The primary presentation is **ScanLab**: run a synthetic imaging experiment,
-change a controlled motion preset, and compare the result with a pinned
-baseline. Each result is written as synthetic DICOM, reopened, and checked;
-the workbench displays the decoded image with linked zoom/pan/window-level
-and inspectable integrity evidence. Reveal how Copilot helps improve the workflow,
-then introduce Julia and the reused KomaMRI/MRIReco/DICOM.jl libraries.
+The primary presentation is **ScanLab**: a practice imaging scan you can read in
+four plain steps. Take a scan, keep it as your reference, scan again with a
+controlled movement, then see what changed: side by side, as a slider, or as a
+map of what moved. Each result is written as synthetic DICOM, opened again, and
+checked pixel by pixel; the picture on screen is the one read back from the
+file. GitHub Copilot is on the same screen: it suggests prompts, drives the
+running service through Canvas actions (its steps appear live, named as
+Copilot's), and drafts the pull request evidence. Then reveal the technology:
+Julia and the reused KomaMRI/MRIReco/DICOM.jl libraries.
 
 No patient data, clinical conclusions, generated fake images, or replay mode.
 Every Run computes on the local CPU. Start from the
@@ -29,13 +32,18 @@ or clinical suitability is claimed.
 
 Use Julia 1.10.12 and Node 22.20+ as below. Imaging dependencies are separately
 pinned under `scanlab`; no OMOP dataset is required for ScanLab. Setup and
-compilation are pre-presentation steps. The ready URL carries a local session
-capability: open it locally and do not publish it.
+compilation are pre-presentation steps; a start takes about three minutes
+because it also rehearses the first scan, keep and compare on a throwaway
+session so the first live click is quick. The launcher starts Julia with
+`--threads=2,1` so the page stays responsive while a scan computes. The ready
+URL carries a local session capability: open it locally and do not publish it.
 
 In GitHub Copilot app choose **Workspace -> Current checkout** to see these
 uncommitted files, then open the existing ScanLab Canvas. The browser and Canvas
-share the same local run state. The app provides the extension SDK; this repo
-does not add a Copilot SDK application dependency or call a model for physics.
+share the same page and the same local run state, so what Copilot does through
+the Canvas shows up in the browser too. The app provides the extension SDK; this
+repo does not add a Copilot SDK application dependency or call a model for
+physics.
 See [app setup and limitations](docs/harnesses/copilot-app.md) and the
 [manual local readiness task](docs/scanlab-readiness.md).
 

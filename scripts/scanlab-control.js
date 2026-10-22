@@ -17,7 +17,7 @@ export function controlRequest(args) {
 
 export function summarizeState(state) {
   const summarize = (result) => result ? {
-    id: result.id, preset: result.preset, resultHash: result.resultHash,
+    id: result.id, preset: result.preset, requestedBy: result.requestedBy, resultHash: result.resultHash,
     inputHash: result.inputHash, computeSeconds: result.computeSeconds,
     dicom: result.dicom ? {
       sopInstanceUid: result.dicom.sopInstanceUid, fileHash: result.dicom.fileHash,
@@ -26,9 +26,10 @@ export function summarizeState(state) {
     } : null
   } : null;
   return {
-    instanceId: state.instanceId, status: state.status, activeRunId: state.activeRunId,
-    selectedPreset: state.selectedPreset, result: summarize(state.result),
-    baseline: summarize(state.baseline), error: state.error
+    workflowVersion: state.workflowVersion, instanceId: state.instanceId, status: state.status,
+    activeRunId: state.activeRunId, selectedPreset: state.selectedPreset, result: summarize(state.result),
+    baseline: summarize(state.baseline), changes: state.changes ?? null,
+    activity: (state.activity ?? []).slice(-5), error: state.error
   };
 }
 

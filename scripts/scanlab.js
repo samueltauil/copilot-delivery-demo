@@ -2,14 +2,14 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import { juliaRuntime } from './julia-runtime.js';
-import { browserUrl, startBackend } from './scanlab-backend.js';
+import { JULIA_THREADS, browserUrl, startBackend } from './scanlab-backend.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 
 export async function runJulia(script, cwd = root) {
   const runtime = juliaRuntime(cwd, join(cwd, 'scanlab'));
   return new Promise((resolve, reject) => {
-    const child = spawn(runtime.executable, [...runtime.args, '--threads=2', script], {
+    const child = spawn(runtime.executable, [...runtime.args, JULIA_THREADS, script], {
       cwd, env: runtime.env, stdio: 'inherit'
     });
     child.once('error', reject);

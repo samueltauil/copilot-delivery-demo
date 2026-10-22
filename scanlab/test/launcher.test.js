@@ -23,15 +23,20 @@ test('CLI controls accept only bounded commands and never print connection capab
     assert.throws(() => controlRequest(args), /Usage:/);
   }
   const summary = summarizeState({
-    status: 'succeeded', token: 'not-for-output',
+    status: 'succeeded', token: 'not-for-output', workflowVersion: 'dicom-v2',
+    changes: { changedPixelsPercent: 27.3 },
+    activity: [1, 2, 3, 4, 5, 6, 7].map((number) => ({ kind: 'preset', actor: 'script', number })),
     result: {
-      id: 'demo', preset: 'still', pixels: [[1]], figure: {}, token: 'hidden',
+      id: 'demo', preset: 'still', requestedBy: 'copilot', pixels: [[1]], figure: {}, token: 'hidden',
       dicom: { sopInstanceUid: '2.25.1', fileHash: 'abc', byteLength: 10, storedPixelsExact: true, fileBase64: 'AAAA' }
     }
   });
   assert.equal(summary.result.id, 'demo');
+  assert.equal(summary.result.requestedBy, 'copilot');
   assert.equal(summary.result.dicom.fileHash, 'abc');
   assert.equal(summary.result.dicom.storedPixelsExact, true);
+  assert.equal(summary.changes.changedPixelsPercent, 27.3);
+  assert.deepEqual(summary.activity.map((entry) => entry.number), [3, 4, 5, 6, 7]);
   assert.ok(!JSON.stringify(summary).includes('fileBase64'));
   assert.ok(!JSON.stringify(summary).includes('token'));
   assert.ok(!JSON.stringify(summary).includes('pixels'));
@@ -68,6 +73,30 @@ test('read actions remain GET even if a host supplies an empty object', async (t
   await attached.stop();
   assert.equal(server.listening, true);
   assert.equal(JSON.parse(await readFile(join(stateDirectory, 'active.json'), 'utf8')).instanceId, value.instanceId);
+});
+
+test('requests say who is asking, default to a script, and unknown actors never reach the network', async (t) => {
+  const seen = [];
+  const server = createServer((req, res) => {
+    seen.push({ method: req.method, url: req.url, actor: req.headers['x-scanlab-actor'] });
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ status: 'idle' }));
+  });
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise((resolve) => { server.closeAllConnections(); server.close(resolve); }));
+  const value = { ...connection, url: `http://127.0.0.1:${server.address().port}` };
+  await callBackend(value, 'status');
+  await callBackend(value, 'run', { preset: 'still' }, { actor: 'copilot' });
+  await callBackend(value, 'preset', { preset: 'gentle' }, { actor: 'you' });
+  assert.deepEqual(seen, [
+    { method: 'GET', url: '/api/status', actor: 'script' },
+    { method: 'POST', url: '/api/run', actor: 'copilot' },
+    { method: 'POST', url: '/api/preset', actor: 'you' }
+  ]);
+  for (const actor of ['admin', '', 'COPILOT', null]) {
+    await assert.rejects(callBackend(value, 'run', { preset: 'still' }, { actor }), /Unknown ScanLab actor/);
+  }
+  assert.equal(seen.length, 3);
 });
 
 test('missing runtime fails explicitly and releases only its own startup lock', async (t) => {

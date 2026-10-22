@@ -13,8 +13,13 @@ committed history and will not contain the uncommitted migration/ScanLab.
 4. Ask: `Open the existing scanlab canvas. Do not scaffold or edit anything.`
 5. On a missing extension, use `extensions_reload` once and inspect `scanlab`.
    Read its actual error instead of repeatedly creating another session.
-6. Run a preset, pin its completed result, run another, and compare run IDs.
-   The Canvas uses the same local API and rendering as the browser.
+6. Ask Copilot to drive it, or copy a suggested prompt from the page's **Work
+   with Copilot** card. The Canvas actions are `get_state`, `select_preset`,
+   `run_experiment` (with `waitForResult`), `pin_baseline` ("Keep as reference"
+   on the page), `get_comparison` and `get_pr_note`. Each action shows up live in
+   the page's **Recent activity** as Copilot's, and the Canvas uses the same
+   local API and page as the browser. The label is self-reported display text,
+   not security.
 
 The project extension is under `.github/extensions/scanlab`. It uses the
 installed host's `@github/copilot-sdk/extension` module resolver; no application
