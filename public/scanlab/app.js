@@ -388,7 +388,7 @@ function renderCopilot() {
   const note = buildPullRequestNote(state);
   setText($('pr-preview'), note ?? 'Take a scan to write a note for a pull request.');
   $('copy-pr').disabled = !note;
-  $('export').disabled = !state?.result;
+  $('export').disabled = !state?.result || shownState()?.status === 'running';
 
   const entries = recentActivity(state, 8);
   const bucket = Math.floor(Date.now() / 5000);

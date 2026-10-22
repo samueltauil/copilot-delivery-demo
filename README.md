@@ -1,20 +1,58 @@
-# ScanLab: a live HLS experiment with GitHub Copilot
+# ScanLab
 
-The primary presentation is **ScanLab**: a practice imaging scan you can read in
-four plain steps. Take a scan, keep it as your reference, scan again with a
-controlled movement, then see what changed: side by side, as a slider, or as a
-map of what moved. Each result is written as synthetic DICOM, opened again, and
-checked pixel by pixel; the picture on screen is the one read back from the
-file. GitHub Copilot is on the same screen: it suggests prompts, drives the
-running service through Canvas actions (its steps appear live, named as
-Copilot's), and drafts the pull request evidence. Then reveal the technology:
-Julia and the reused KomaMRI/MRIReco/DICOM.jl libraries.
+**See what movement does to a brain scan, on practice data, with GitHub Copilot
+working next to you.**
 
-No patient data, clinical conclusions, generated fake images, or replay mode.
-Every Run computes on the local CPU. Start from the
-[ScanLab presenter guide](docs/scanlab-guide.md) and
-[scientific contract](docs/scanlab-scenario.md). Library, research, and dataset
-attribution is in [credits](docs/credits.md).
+ScanLab is a small live imaging workbench. You take a scan, keep it as your
+reference, scan again with the head moved, and see exactly what changed. It runs
+on your own computer, as a web page and as a canvas inside the GitHub Copilot
+app. Copilot can run the experiment for you and write up the evidence.
+
+> **Practice data only.** ScanLab simulates a published digital brain phantom.
+> There are no patient images. It is a learning demo, not a medical device, and
+> it makes no clinical claims.
+
+![ScanLab comparing a reference scan with a new scan, the difference map and the Work with Copilot panel](docs/images/scanlab-what-changed.png)
+
+## Four steps
+
+1. **Take a scan.** Choose how far the head moves (**No motion**, **Controlled
+   shift** or **Larger shift**) and press **Take scan**. A real MRI simulation
+   runs on your CPU.
+2. **Keep it as your reference.** The scan is saved as a DICOM file, opened again
+   and checked pixel by pixel. The picture you see is the one read back from the
+   file. Keep it as the reference.
+3. **Scan again with movement.** Pick a different movement and scan again. Your
+   reference stays exactly as it was.
+4. **See what changed.** Compare the two side by side, with a slider, or as a map
+   of what moved.
+
+Every scan is computed live. Nothing is pre-recorded or replayed.
+
+## What it looks like
+
+![The reference and the new scan side by side](docs/images/scanlab-side-by-side.png)
+
+*Side by side, with linked zoom, brightness and contrast.*
+
+![The Work with Copilot panel with prompts to copy, a pull request note preview and recent activity](docs/images/scanlab-copilot.png)
+
+*The Work with Copilot panel: prompts to copy, a pull request note built from the
+real run, and a plain-words activity list that names who did what.*
+
+| On a phone: set up the scan | On a phone: see what changed |
+|---|---|
+| ![ScanLab controls on a phone](docs/images/scanlab-phone-controls.png) | ![ScanLab comparison on a phone](docs/images/scanlab-phone-compare.png) |
+
+These are real browser captures of the running app, using practice data. The
+"Copilot" entries in the activity list were sent through the same canvas actions
+the Copilot app calls. They are not from a live Copilot app session.
+
+## Quick start
+
+You need **Julia 1.10.12**, **Node 22.20 or newer** and Git. The commands are
+written for PowerShell on Windows. If Julia is not on your PATH, set `JULIA_EXE`
+to its executable first.
 
 ```powershell
 npm ci
@@ -24,132 +62,70 @@ npm run scanlab:check
 npm run scanlab
 ```
 
-The DICOM output is derived Secondary Capture, not a clinical MR image.
-Stored 16-bit pixels must survive exactly; floating-point quantization error is
-measured and bounded. Downloads contain the actual verified bytes. The browser
-suite independently reads them with `dicom-parser`; no conformance certification
-or clinical suitability is claimed.
+`scanlab:setup` installs the pinned Julia packages. `scanlab:check` is optional
+and runs every ScanLab test, which takes several minutes. `scanlab` starts the
+app. Wait for `ScanLab ready: <url>` and open that address.
 
-Use Julia 1.10.12 and Node 22.20+ as below. Imaging dependencies are separately
-pinned under `scanlab`; no OMOP dataset is required for ScanLab. Setup and
-compilation are pre-presentation steps; a start takes about three minutes
-because it also rehearses the first scan, keep and compare on a throwaway
-session so the first live click is quick. The launcher starts Julia with
-`--threads=2,1` so the page stays responsive while a scan computes. The ready
-URL carries a local session capability: open it locally and do not publish it.
+The first start takes about three minutes while Julia compiles and rehearses a
+scan on a throwaway session. After that, a scan takes about five seconds. The
+address carries a private token for this computer, so do not share it.
 
-In GitHub Copilot app choose **Workspace -> Current checkout** to see these
-uncommitted files, then open the existing ScanLab Canvas. The browser and Canvas
-share the same page and the same local run state, so what Copilot does through
-the Canvas shows up in the browser too. The app provides the extension SDK; this
-repo does not add a Copilot SDK application dependency or call a model for
-physics.
-See [app setup and limitations](docs/harnesses/copilot-app.md) and the
-[manual local readiness task](docs/scanlab-readiness.md).
+## Use it with GitHub Copilot
 
-`npm run check:all` covers both experiences. Stop only the server you own.
-No commits, pushes, hosted actions or global permission changes are implied.
+1. In the GitHub Copilot app, add this folder and start a new session with
+   **Workspace → Current checkout**.
+2. Ask: `Open the existing scanlab canvas. Do not scaffold or edit anything.`
+3. Ask Copilot to run it:
 
-## Preserved synthetic research desk
-
-A small HLS delivery story, not a clinical application. A research coordinator
-views a synthetic population snapshot and requests a review. Copilot helps the
-team understand the workflow, agree a name-validation rule, implement it, test
-it, and explain the result.
-
-**Present from [DEMO-GUIDE.md](DEMO-GUIDE.md).** One page, one business change,
-one browser tab. GitHub delegation/review/CI are optional continuations of the
-same story, not additional applications.
-
-## What is actually reused
-
-- **JuliaHealth HealthSampleData.jl** downloads the checksum-pinned synthetic
-  Eunomia SQLite dataset. No patient generator is implemented here.
-- **JuliaHealth OMOPCDMCohortCreator.jl** supplies the existing person/cohort
-  query functions from its [beginner tutorial](https://juliahealth.org/OMOPCDMCohortCreator.jl/stable/tutorials/beginner_tutorial/).
-  No cohort engine, terminology service, or clinical algorithm is reimplemented.
-- **HTTP.jl, JSON.jl and SQLite.jl** handle transport, strict JSON and database access.
-- The small accessible HTML/JavaScript UI and Playwright checks are retained.
-  Node is developer/test tooling only; the application backend is Julia.
-
-The verified snapshot has **2,694 synthetic people** and **1,677 distinct people**
-with a condition record for tutorial concept **28060**. Multiple condition
-records do not count as multiple people. These are descriptive tutorial counts,
-not prevalence estimates, eligibility decisions, diagnoses, or recommendations.
-Submitting a request records a coordination task; it does not rerun an analysis
-or notify a real person.
-
-## Set up before presenting
-
-Prerequisites: **Julia 1.10.12**, **Node 22.20+**, and Git. Other Julia versions
-allowed by the project compatibility range are not automatically certified.
-Install Julia using the [official instructions](https://julialang.org/downloads/).
-The locally prepared authoring checkout also recognizes its isolated
-`.demo-runs\tools\julia-1.10.12\bin\julia.exe`; no global PATH change is needed.
-For another installation, set `JULIA_EXE` to the executable.
-
-From the repository root in PowerShell:
-
-```powershell
-# Optional, only when Julia is neither on PATH nor in the prepared local location:
-# $env:JULIA_EXE = 'C:\path\to\julia\bin\julia.exe'
-npm ci
-npx playwright install chromium
-npm run setup
-npm run check
-npm start
+```text
+Use the ScanLab canvas to run No motion, keep it as the reference, run Controlled shift, then explain in plain words what changed. Quote the real run IDs and numbers.
 ```
 
-The setup step needs internet access for packages and the synthetic dataset.
-Review the DataDeps download/terms prompt and accept it before the audience
-joins. Packages default to the isolated `.demo-runs\julia-depot` directory.
-`Project.toml` and `Manifest.toml` declare and pin the Julia dependencies.
-Do not delete the cache to repeat a demonstration.
+The page moves on its own, and each step appears under **Recent activity** as
+Copilot's. Copilot can also draft the pull request note with the real run IDs and
+fingerprints. The [Copilot guide](docs/copilot.md) covers the canvas actions, the
+command-line bridge, the repository instructions, the skill and the readiness
+task.
 
-Open **http://127.0.0.1:3000**. Stop with Ctrl+C. For another port:
-`$env:PORT = '3001'; npm start`. The server is loopback-only and does not reload
-code automatically. Restart it after an implementation change.
+## Read more
 
-After setup, the app and checks use cached data and do not download at runtime.
-Startup warms the request paths with a disposable synthetic request before
-opening the listener, then serves a fresh empty request store.
-Missing or changed data stops startup explicitly rather than showing invented
-counts. No database service, GPU, AI API key, cloud account, or deployment is needed.
+| Read | For |
+|---|---|
+| [How ScanLab works](docs/how-it-works.md) | The science, the DICOM file, the service and its API, in plain words |
+| [Presenting](docs/presenting.md) | A step-by-step demo script, and how to rehearse it |
+| [ScanLab and GitHub Copilot](docs/copilot.md) | Canvas actions, the command-line bridge, templates and the readiness task |
+| [Testing](docs/testing.md) | Every command, what each test suite covers, and what is not verified |
+| [Request desk](docs/request-desk.md) | A second, smaller exercise with a different dataset |
+| [Credits](docs/credits.md) | Libraries, data, research and citations |
 
-## Validate and repeat
+## Built on
 
-```powershell
-npm test            # Node tooling checks + Julia unit/API/real-data checks
-npm run test:e2e    # isolated Chromium server, includes accessible correction
-npm run check      # both gates
-npm run demo:local -- --run rehearsal-one
-```
+ScanLab reuses existing open-source projects instead of rebuilding them:
+[KomaMRI](https://github.com/JuliaHealth/KomaMRI.jl) for the phantom and the scan
+simulation, [MRIReco](https://github.com/MagneticResonanceImaging/MRIReco.jl) for
+the image reconstruction and [DICOM.jl](https://github.com/JuliaHealth/DICOM.jl)
+for the saved file. The backend is Julia. Node runs only the browser tests and the
+helper scripts. See [Credits](docs/credits.md) for versions, licenses and
+citations.
 
-The last command creates fresh **start** and **reference** snapshots under
-`.demo-runs\rehearsal-one`, without copying private context, data, dependencies,
-or Git history. Start deliberately lacks the name rule; its name tests are
-expected to fail. Reference contains the completed implementation. Keep both
-test suites intact. Cache/working-directory steps are in
-[the repeatability guide](docs/demo-lifecycle.md).
+## Honest limits
 
-The old `demo-start` and `demo-candidate` Git tags remain untouched **Node-era
-history**. They are not the Julia demo. Snapshot names `julia-start` and
-`julia-reference` are roles, not claims that new tags or commits exist.
+- The saved file is a derived Secondary Capture DICOM, not a clinical MR image.
+  No conformance certification is claimed.
+- The tests cover the science, the saved file, the service, the canvas adapter and
+  the web page. They do not drive the GitHub Copilot app itself, because the host
+  blocks desktop automation of that app. See
+  [Testing](docs/testing.md#what-has-not-been-verified).
+- The activity names ("You", "Copilot", "A script") are labels the caller reports
+  about itself. They are not security.
 
-## Boundaries and evidence
+## Also in this repository
 
-Only synthetic inputs and the exact pinned synthetic dataset are permitted.
-The API exposes aggregates, not patient rows. Requests are in-memory and reset
-on restart; the read-only dataset remains cached. No authentication or complete
-audit trail is claimed.
+The [request desk](docs/request-desk.md) is a separate, smaller exercise: a
+synthetic research review form and one coding task for Copilot. Run it with
+`npm run setup` and `npm start`.
 
-See [scenario](docs/scenario.md), [reuse sources](docs/official-docs-validation.md),
-[requirement evidence](docs/requirements-traceability.md), and
-[actual rehearsal results](docs/evidence/rehearsal.md).
-Package licensing and dataset provenance are documented separately; package
-licensing alone is not proof of arbitrary health-data reuse rights.
+## License
 
-The Actions workflow is a local, unexecuted hosted-CI definition until separately
-approved/published. Do not push, create issues/PRs, assign Copilot, request
-reviews, change policies, merge, or clean hosted resources without separate
-approval. Copilot access and feature availability depend on the actual account.
+[MIT](LICENSE). Third-party libraries keep their own licenses. See
+[Credits](docs/credits.md).

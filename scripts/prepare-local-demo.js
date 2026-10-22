@@ -9,7 +9,7 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const entries = [
   '.gitignore', '.github', '.vscode', 'Project.toml', 'Manifest.toml',
   'package.json', 'package-lock.json', 'playwright.config.js', 'README.md', 'PRODUCT.md', 'DESIGN.md',
-  'DEMO-GUIDE.md', 'LICENSE', 'src', 'public', 'scripts', 'test', 'e2e', 'docs', 'scanlab'
+  'LICENSE', 'src', 'public', 'scripts', 'test', 'e2e', 'docs', 'scanlab'
 ];
 
 function runFixture(directory, fixture, { reverse = false, check = false } = {}) {
@@ -87,7 +87,8 @@ if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) 
     const directory = await prepareLocalDemo(process.argv[3], root, exercise);
     console.log(`Prepared local start/reference snapshots: ${directory}`);
     console.log('Keep JULIA_DEPOT_PATH and DEMO_DATA_PATH pointed at the prepared root cache before changing directories.');
-    console.log(`The ${exercise} start snapshot deliberately fails its feature tests. Read docs/demo-lifecycle.md before presenting.`);
+    const guide = exercise === 'scanlab' ? 'docs/presenting.md' : 'docs/request-desk.md';
+    console.log(`The ${exercise} start snapshot deliberately fails its feature tests. Read ${guide} before presenting.`);
   } catch (error) {
     console.error(`Local preparation failed: ${error.message}`);
     process.exitCode = 1;

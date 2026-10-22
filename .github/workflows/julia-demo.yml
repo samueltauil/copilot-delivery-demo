@@ -1,4 +1,4 @@
-name: JuliaHealth demo checks
+name: ScanLab checks
 
 on:
   pull_request:

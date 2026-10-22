@@ -23,7 +23,7 @@ missing, null, non-string, empty, and whitespace-only values with HTTP 400 and
 ## Scope and exclusions
 Julia request store/server, name UI feedback, and tests only. No unrelated
 refactors, dependencies, publishing, policies, or merges. Preserve description
-behavior and the JuliaHealth study snapshot. Do not use the legacy Node tags.
+behavior and the JuliaHealth study snapshot.
 
 ## Validation
 `npm test`, `npm run test:e2e`, `npm run check`.

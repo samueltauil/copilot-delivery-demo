@@ -6,7 +6,7 @@ user-invocable: true
 
 # ScanLab local workflow
 
-Read `docs/scanlab-scenario.md` and `docs/harnesses/copilot-app.md`.
+Read `docs/how-it-works.md` and `docs/copilot.md`.
 Use the actual selected checkout. Never substitute a remote clone or new
 worktree that lacks the uncommitted demonstration.
 
@@ -66,7 +66,7 @@ upgrade packages, install missing dependencies, weaken tests, or fabricate a
 successful report during a readiness automation. A failed prerequisite is a
 failed readiness result.
 
-Use `docs/scanlab-readiness.md` for the manually triggered local automation.
+The readiness task in `docs/copilot.md#readiness-task` is the manually triggered local automation.
 No schedules, cloud automation, global permission changes, commits, pushes,
 issues, PRs, reviews, deployment or hosted cleanup are authorized by this skill.
 

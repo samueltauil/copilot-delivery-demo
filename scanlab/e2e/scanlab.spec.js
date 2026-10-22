@@ -384,6 +384,7 @@ test('a running scan answers at once and the page stays alive', async ({ page })
   await expect(presetRadio(page, 'still')).toBeDisabled();
   await expect(page.locator('#coach')).toContainText('Scanning on this computer. The image on screen is the previous scan');
   await expect(page.locator('#panes')).toHaveAttribute('data-busy', '');
+  await expect(page.locator('#export')).toBeDisabled();
 
   // While the scan computes, the server must keep answering quickly.
   const probe = await page.evaluate(async () => {
@@ -412,6 +413,7 @@ test('a running scan answers at once and the page stays alive', async ({ page })
   expect(probe.slowest).toBeLessThan(3000);
   await expect(page.locator('#status')).toContainText('Scan complete', { timeout: 60000 });
   await expect(page.locator('#current-label')).toHaveText(PRESETS[target]);
+  await expect(page.locator('#export')).toBeEnabled();
 });
 
 test('a quick second click is queued instead of lost', async ({ page }) => {

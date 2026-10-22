@@ -44,7 +44,8 @@ display labels, not authentication or an audit trail.
 ## Product Principles
 
 - Plain words first. Technical terms live in the closed Technical details and
-  the guide's glossary, never in the way of the first read.
+  the plain-words table in docs/how-it-works.md, never in the way of the first
+  read.
 - Images lead; metadata and provenance are inspectable, not decorative.
 - Every action answers at once: the page shows what is happening before the
   server finishes, and it never passes an old image off as new.

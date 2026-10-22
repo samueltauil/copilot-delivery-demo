@@ -64,3 +64,36 @@ because adding one would expand the approved synthetic-only scope.
 
 If a reference study is approved, record its source URL, checksum, license text, required
 citation, and de-identification notes here before you use it.
+
+## Request desk libraries and data
+
+The [request desk](request-desk.md) uses a separate set of Julia packages, pinned in the root
+`Project.toml` and `Manifest.toml`.
+
+| Library | Version | Role | License | Credit |
+|---|---|---|---|---|
+| [HealthSampleData.jl](https://github.com/JuliaHealth/HealthSampleData.jl) | 0.0.1 | Downloads the synthetic Eunomia dataset with a checksum | MIT | © 2022 Jacob Zelko and Georgia Tech Research Institute |
+| [OMOPCDMCohortCreator.jl](https://juliahealth.org/OMOPCDMCohortCreator.jl/stable/tutorials/beginner_tutorial/) | 0.5.1 | The existing person and cohort queries | MIT | © 2022 Jacob Zelko and Georgia Tech Research Institute |
+| [SQLite.jl](https://juliadatabases.org/SQLite.jl/stable/) | 1.9.0 | Reads the dataset | MIT | © 2014 Jacob Quinn and contributors |
+| [HTTP.jl](https://github.com/JuliaWeb/HTTP.jl), [JSON.jl](https://github.com/JuliaIO/JSON.jl) | 1.11.0 / 1.11.0 | Local server and strict JSON | MIT | JuliaWeb and JuliaIO contributors |
+
+JSON3.jl was tried first, but its reader accepted trailing text after a valid object. The
+request desk uses JSON.jl's strict root parser instead.
+
+### The dataset
+
+The data is Eunomia, a small synthetic OMOP sample generated with Synthea.
+[OHDSI Eunomia](https://github.com/OHDSI/Eunomia) manages it, and
+[EunomiaDatasets](https://github.com/OHDSI/EunomiaDatasets) publishes an Apache-2.0 license.
+This repository does not redistribute the database or vendor any upstream source. Setup
+downloads the upstream artifact through DataDeps and checks its SHA-256
+(`cef9f00fe469041cfcdec527fc6f5657e2d0185bc002df38262faa642ee97c82`) before the database opens.
+The snapshot has 2,694 people, and 1,677 distinct people have a condition record for tutorial
+concept 28060.
+
+A package license does not grant blanket rights to every medical dataset or terminology. Check
+the terms of any other data before you use it here.
+
+HealthSampleData's default upstream branch had a different package UUID from its registered
+release, so resolution failed at first. The project pins the registered release from the General
+registry. No fork or patch was used.

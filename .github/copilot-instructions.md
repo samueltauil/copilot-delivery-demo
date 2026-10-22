@@ -3,9 +3,10 @@
 Use synthetic data only. This is a learning application, not a production system.
 The ignored context folder is original private planning input, not demo material.
 Do not read it, attach it to prompts, or add it to Git.
-Read docs/scenario.md and docs/approved-change.md before editing. The prepared
-Julia start snapshot deliberately omits the name rule; reference includes it.
-The immutable demo-start/demo-candidate Git tags are legacy Node history.
+Read docs/how-it-works.md (ScanLab) or docs/request-desk.md (request desk) before
+editing. The prepared request-desk start snapshot deliberately omits the name
+rule; the reference includes it. Existing Git tags are immutable; do not move or
+delete them.
 
 Plan before implementation and require human approval. The approved ScanLab
 expansion adds a live-only synthetic imaging experiment, shared browser/Canvas
