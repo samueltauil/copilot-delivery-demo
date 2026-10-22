@@ -35,7 +35,9 @@ Every scan is computed live. Nothing is pre-recorded or replayed.
 
 *Side by side, with linked zoom, brightness and contrast.*
 
-![The Work with Copilot panel with prompts to copy, a pull request note preview and recent activity](docs/images/scanlab-copilot.png)
+<p align="center">
+  <img src="docs/images/scanlab-copilot.png" width="360" alt="The Work with Copilot panel with prompts to copy, a pull request note preview and recent activity">
+</p>
 
 *The Work with Copilot panel: prompts to copy, a pull request note built from the
 real run, and a plain-words activity list that names who did what.*
