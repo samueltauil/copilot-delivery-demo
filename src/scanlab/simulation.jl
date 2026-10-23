@@ -1,12 +1,12 @@
-const RESOLUTION = 192
+const RESOLUTION = 384
 const FOV_METERS = 0.23
-const PHANTOM_SUBSAMPLING = 2
+const PHANTOM_SUBSAMPLING = 1
 # Fixed scale (not per-run) keeps intensity loss from motion visible in the 0–1 window.
-const INTENSITY_SCALE = 1.7
+const INTENSITY_SCALE = 1.3
 # The two default-pool workers from --threads=2,1; the web server keeps the
 # interactive thread. Two threads give bit-identical pixels to one.
 const SIMULATION_THREADS = 2
-const MODEL_VERSION = "brainweb-phantom-epi-v3"
+const MODEL_VERSION = "brainweb-phantom-epi-v4"
 const PRESETS = (
     (id="still", label="No motion", motionMm=0, description="The reference acquisition."),
     (id="gentle", label="Controlled shift", motionMm=8, description="An 8 mm translation during readout."),
@@ -21,7 +21,7 @@ function preset_for(id)
     PRESETS[index]
 end
 
-# KomaMRI's bundled BrainWeb-derived digital brain phantom (1.0 mm spin spacing).
+# Use the bundled phantom's native 0.5 mm grid, without repeating or inventing samples.
 brain_phantom() = brain_phantom2D(; axis="axial", ss=PHANTOM_SUBSAMPLING)
 
 # Rotate the reconstruction grid so anterior is at the top, then apply the fixed scale.
@@ -98,13 +98,6 @@ function simulate_experiment(id; run_id=string(uuid4()), progress=(_)->nothing)
         "computeSeconds"=>elapsed, "roundtripSeconds"=>roundtrip_seconds,
         "dicom"=>dicom, "pixels"=>pixels, "figure"=>image_figure(decoded),
     )
-end
-
-function warmup()
-    for preset in PRESETS
-        JSON.json(simulate_experiment(preset.id))
-    end
-    nothing
 end
 
 function plotly_asset()

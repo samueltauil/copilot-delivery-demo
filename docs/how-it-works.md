@@ -28,7 +28,7 @@ The page shows four stages. They are real: the service reports each one as it
 happens.
 
 1. **Simulate the scan.** KomaMRI simulates the scanner and the head. MRIReco
-   turns the signal into a 192 × 192 picture.
+   turns the signal into a 384 × 384 picture.
 2. **Save as DICOM file.** DICOM.jl writes the picture as a DICOM file, the
    standard format for medical images.
 3. **Open the file again.** The file is read back from its bytes.
@@ -45,19 +45,42 @@ ScanLab does not implement MRI physics. It uses libraries that already do
 (see [credits](credits.md)).
 
 - **Head:** KomaMRI's bundled `brain_phantom2D`, a slice of the BrainWeb digital
-  brain model, sampled at 1.0 mm with 25,971 simulated points. It is a published
+  brain model, sampled at its native 0.5 mm with 103,964 simulated points. It is a published
   synthetic phantom, not a person.
 - **Scanner:** KomaMRI's built-in single-shot EPI sequence, simulated on two CPU
-  threads and reconstructed to 192 × 192 pixels (about 1.2 mm each) over a 0.23 m
+  threads and reconstructed to 384 × 384 pixels (about 0.6 mm each) over a 0.23 m
   field of view. Two threads give exactly the same pixels as one, only faster.
 - **Movement:** the head shifts left and right while the scan is being read out.
   That is what produces the ghosting and blur.
-- **Brightness:** every image is divided by the same constant (1.7), so both
+- **Brightness:** every image is divided by the same constant (1.3), so both
   scans share one 0–1 scale. Nothing is normalized per image, so signal lost to
   movement stays visible.
 
 The pinned versions live in `scanlab/Manifest.toml`. The fixed parameters live
 in `src/scanlab/simulation.jl`.
+
+### Detail, speed and remaining limits
+
+The current acquisition uses four times as many pixels and four times as many
+simulated points as the previous 192 × 192 version. The added samples come from
+the same bundled phantom, not an enlarged image, a new dataset or AI-generated
+detail. Display smoothing only blends the computed pixels; it adds no anatomy.
+
+The upgrade compared actual 256 × 256 and 384 × 384 acquisitions at native
+phantom sampling. The 384 image showed finer boundaries and less dotted texture
+than the old 192 image. Its three presets took about 7–8 minutes each in the
+local benchmark. The fixed scale of 1.3 keeps the brightest measured pixel
+(about 1.23 before scaling) inside the shared display range without normalizing
+each scan separately.
+
+This is the sharpest configuration evaluated here, not a claim of maximum MRI
+quality. Finite pixels still show at sufficient zoom. The phantom's tissue
+labels have finite detail, and the single-shot EPI readout is now about 0.49 s
+instead of 0.19 s. Signal decay during that longer readout changes contrast and
+can blur detail; doubling the matrix again would not simply double useful
+resolution. A 512 acquisition would also exceed the native 0.5 mm spin grid's
+spatial sampling limit for this field of view. No sharpening filter, generated
+texture or clinical image has been substituted.
 
 ## The DICOM file
 
@@ -68,7 +91,7 @@ synthetic subject, and unsigned 16-bit `MONOCHROME2` pixels.
 - Every scan gets new series and instance IDs. One synthetic study groups the
   scans in a session.
 - No patient orientation, pixel spacing or scanner details are claimed, and the
-  192 × 192 image is never enlarged to look more detailed.
+  384 × 384 stored image is never enlarged to claim more acquired detail.
 - Storing decimals as 16-bit integers rounds them. The rounding error is
   measured, and it must not exceed half of one stored step. Stored pixels,
   dimensions and identifiers must come back exactly. Any failure rejects the
@@ -129,11 +152,13 @@ the Copilot app Canvas use the same page and the same running state.
 - **Responsive.** Julia starts with `--threads=2,1`, so the web server keeps
   answering on its own thread while a scan computes on the two worker threads.
   The launcher sets this, and the service refuses to start without it.
-- **Warm start.** Starting takes about three minutes the first time. Before it
-  prints the URL, the service rehearses a scan, keep, compare and download on a
-  throwaway session and discards the result. The first live click is then quick.
-  A warm scan took about 20 seconds without movement and up to about 40 seconds
-  with it on the development machine; slower CPUs may take longer.
+- **Warm start.** Allow roughly 15–20 minutes for startup on the measured machine.
+  Before it prints the URL, the service rehearses still and moving scans, keep,
+  compare and download on a throwaway session and discards the results. It
+  compiles both scientific paths without redundantly rehearsing every preset.
+  Every live click still computes a new acquisition, about 7–8 minutes in the
+  benchmark; slower CPUs may take longer. Startup has a 35-minute deadline and
+  each rehearsal scan a 15-minute deadline; exceeding either fails explicitly.
 - **Local only.** Every `/api` request needs the session token in an
   `x-scanlab-token` header, and the browser origin is checked. The page receives
   the token in the URL fragment. Do not share that URL or a screenshot of it.
@@ -189,6 +214,21 @@ audit trail.
 
 Anyone changing ScanLab should reuse the pinned libraries, never replace a
 failed library call with a hardcoded result, and keep every test intact.
+
+### Research potential
+
+ScanLab can support reproducible synthetic experiments and studies of
+Copilot-assisted workflows: each acquisition has explicit inputs, a library
+manifest fingerprint, immutable reference pixels and independently checked
+DICOM output. The underlying KomaMRI simulator has published validation
+([credits](credits.md)); that does not automatically validate ScanLab.
+
+One fixed phantom and three movements do not establish general imaging
+performance. The displayed pixel differences are not diagnostic quality
+metrics. A research contribution would need a defined question, independent
+reference results, numerical convergence checks, repeated measurements and
+domain-expert review. Broader anatomy, new sequences or patient data would be
+separate work outside this demo's approved scope.
 
 ## The coding exercise
 

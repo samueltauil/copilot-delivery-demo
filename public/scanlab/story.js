@@ -59,13 +59,13 @@ export function runButtonLabel(state) {
 export function coachLine(state) {
   if (state?.status === 'running') {
     return state.result
-      ? 'Scanning on this computer. The image on screen is the previous scan, not this one.'
-      : 'Scanning on this computer. This takes a few seconds.';
+      ? 'Scanning on this computer. The image on screen is the previous scan, not this one. A full-detail scan takes several minutes.'
+      : 'Scanning on this computer. A full-detail scan takes several minutes.';
   }
   if (state?.status === 'failed') return 'That scan did not finish. Any image on screen is from the previous scan. Try again.';
   switch (currentStep(state)) {
     case 0:
-      return 'Choose how much the head moves, then press Take scan. No motion makes the cleanest reference.';
+      return 'Choose how much the head moves, then press Take scan. No motion makes the cleanest reference. Each full-detail scan takes several minutes.';
     case 1:
       return state.result.preset === 'still'
         ? 'Press Keep as reference to save this scan as the one to compare against.'

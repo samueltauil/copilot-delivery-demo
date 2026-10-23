@@ -100,7 +100,7 @@ end
 # Without this, a person's first keep, compare and download would be the first time Julia compiles those
 # paths, and they would feel it as a pause. It takes the same first steps through the real request handlers
 # on a private session that is thrown away, so nothing it computes is ever shown.
-function warm_requests(; timeout=120, options...)
+function warm_requests(; timeout=900, options...)
     token = string(uuid4())
     app = create_app(SessionState(); token, asset="", options...)
     headers = ["x-scanlab-token"=>token, "content-type"=>"application/json"]
@@ -111,17 +111,22 @@ function warm_requests(; timeout=120, options...)
         response
     end
     status() = JSON.parse(call("GET", "/api/status").body)
-    call("POST", "/api/preset", (preset="gentle",))
-    call("POST", "/api/run", (preset="gentle",))
-    deadline = time() + timeout
-    while status()["status"] == "running"
-        time() < deadline || error("The warm-up scan did not finish within $timeout seconds.")
-        sleep(0.05)
+    function scan(preset)
+        call("POST", "/api/preset", (; preset))
+        call("POST", "/api/run", (; preset))
+        deadline = time() + timeout
+        while status()["status"] == "running"
+            time() < deadline || error("The warm-up scan did not finish within $timeout seconds.")
+            sleep(0.05)
+        end
+        finished = status()
+        finished["status"] == "succeeded" || error("The warm-up scan did not succeed: $(something(finished["error"], "no details")).")
+        finished["resultId"]
     end
-    finished = status()
-    finished["status"] == "succeeded" || error("The warm-up scan did not succeed: $(something(finished["error"], "no details")).")
-    run_id = finished["resultId"]
+    # Compile still and moving objects once each, keeping all warm-up evidence private.
+    run_id = scan("still")
     call("POST", "/api/pin", (runId=run_id,))
+    scan("gentle")
     call("GET", "/api/state")
     call("GET", "/api/compare")
     call("GET", "/api/dicom/$run_id")

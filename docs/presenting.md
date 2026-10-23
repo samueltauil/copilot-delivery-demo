@@ -1,9 +1,9 @@
 # Presenting ScanLab
 
 A step-by-step script for showing ScanLab and GitHub Copilot together. Rehearse
-it once on your own machine first. A warm scan took about 20 seconds without
-movement and up to about 40 seconds with it on the measured development
-machine; allow extra time on slower CPUs.
+it once on your own machine first. Full-detail 384 × 384 scans took about 7–8
+minutes each in the local benchmark. Plan a longer session, not a seconds-long
+live demo; slower CPUs may take longer. Never replay a saved image as a new scan.
 
 ## Before the audience joins
 
@@ -14,7 +14,7 @@ Do all of this ahead of time. Never install or compile in front of the audience.
    `npm run scanlab:setup`.
 3. Recommended: run `npm run scanlab:check`.
 4. Run `npm run scanlab` and wait for `ScanLab ready: <url>`. Keep that terminal
-   open. The first start takes about three minutes.
+   open. Allow roughly 15–20 minutes for the two startup rehearsal scans.
 5. Open the URL in a browser, or open the Canvas in the GitHub Copilot app (see
    [Open ScanLab in the GitHub Copilot app](copilot.md#open-scanlab-in-the-github-copilot-app)).
 6. Check the Copilot mode, tool permissions and account access you will use. A

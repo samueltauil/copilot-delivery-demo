@@ -1,4 +1,8 @@
 @testset "Live upstream imaging" begin
+    @test ScanLab.RESOLUTION == 384
+    @test ScanLab.PHANTOM_SUBSAMPLING == 1
+    # The acquisition must stay below the native spin lattice's spatial Nyquist limit.
+    @test ScanLab.RESOLUTION * (0.0005 * ScanLab.PHANTOM_SUBSAMPLING) < ScanLab.FOV_METERS
     results = [ScanLab.simulate_experiment(p.id) for p in ScanLab.PRESETS]
     matrices = [reduce(vcat, permutedims.(r["pixels"])) for r in results]
     for result in results
@@ -6,10 +10,11 @@
         @test length(result["pixels"]) == ScanLab.RESOLUTION
         @test all(row -> length(row) == ScanLab.RESOLUTION && all(isfinite, row), result["pixels"])
         @test result["parameters"].resolution == ScanLab.RESOLUTION
-        @test result["parameters"].phantomSpacingMm == 1.0
+        @test result["parameters"].phantomSpacingMm == 0.5
         @test result["parameters"].backend == "CPU"
-        @test result["parameters"].spins == 25971
-        @test result["parameters"].intensityScale == 1.7
+        @test result["parameters"].spins == 103964
+        @test result["parameters"].intensityScale == 1.3
+        @test result["parameters"].modelVersion == "brainweb-phantom-epi-v4"
         @test all(value -> 0 <= value <= 1, Iterators.flatten(result["pixels"]))
         @test result["parameters"].displayRange == [0, 1]
         @test result["computeSeconds"] > 0
@@ -27,8 +32,8 @@
     @test repeated["id"] != results[1]["id"]
     @test repeated["inputHash"] == results[1]["inputHash"]
     @test repeated["pixels"] == results[1]["pixels"]
-    @test isapprox(norm(matrices[2] - matrices[1]) / norm(matrices[1]), 0.719671; rtol=1e-3)
-    @test isapprox(norm(matrices[3] - matrices[1]) / norm(matrices[1]), 0.760810; rtol=1e-3)
+    @test isapprox(norm(matrices[2] - matrices[1]) / norm(matrices[1]), 0.912496; rtol=1e-3)
+    @test isapprox(norm(matrices[3] - matrices[1]) / norm(matrices[1]), 0.961802; rtol=1e-3)
 
     # Invoke the maintained libraries independently (single-threaded) to verify the adapter's result.
     object, sequence, scanner = ScanLab.experiment_inputs("still")

@@ -41,7 +41,9 @@ Use the open Canvas rather than the CLI whenever it is available:
   DICOM evidence (image arrays and file bytes are omitted).
 - `select_preset`: one of `still`, `gentle`, `larger`.
 - `run_experiment`: compute a new live scan. `waitForResult` waits (about 90
-  seconds at most) and returns the summary. A concurrent start is rejected.
+  seconds at most) and returns the summary or an explicit `timedOut` while the
+  scan continues. Full-detail scans take several minutes; prefer the default
+  immediate run ID, then poll `get_state` for completion. A concurrent start is rejected.
 - `pin_baseline`: keep the named completed run (by run ID) as the reference.
 - `get_comparison`: latest scan and reference with parameters, provenance,
   change measurements and activity.

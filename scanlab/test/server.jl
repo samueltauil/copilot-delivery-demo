@@ -151,7 +151,7 @@
                 "dicom"=>Dict{String,Any}("fileBase64"=>"RElDTQ=="))
         end
         @test isnothing(ScanLab.warm_requests(; compute=warm_compute))
-        @test scans == ["gentle"]
+        @test scans == ["still", "gentle"]
 
         # A warm-up that cannot finish has to stop startup, never pass quietly.
         failing(preset; run_id) = error("Injected scan failure")

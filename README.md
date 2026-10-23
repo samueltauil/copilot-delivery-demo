@@ -65,13 +65,15 @@ npm run scanlab
 ```
 
 `scanlab:setup` installs the pinned Julia packages. `scanlab:check` is optional
-and runs every ScanLab test, which takes several minutes. `scanlab` starts the
+and runs every ScanLab test, including many multi-minute acquisitions. `scanlab` starts the
 app. Wait for `ScanLab ready: <url>` and open that address.
 
-The first start takes about three minutes while Julia compiles and rehearses a
-scan on a throwaway session. A warmed scan took about 20 seconds without movement
-and up to about 40 seconds with it on the measured development machine; allow
-extra time on slower CPUs. The address carries a private token for this
+The quality-first acquisition is **384 × 384**, using the phantom's native
+0.5 mm samples. Allow roughly **15–20 minutes for startup** while Julia compiles
+and rehearses two scans on a throwaway session, then **about 7–8 minutes per
+live scan** in the local benchmark. Slower CPUs may take longer. These are real
+computations, not saved-image playback. See [detail and limits](docs/how-it-works.md#detail-speed-and-remaining-limits).
+The address carries a private token for this
 computer, so do not share it.
 
 ## Use it with GitHub Copilot

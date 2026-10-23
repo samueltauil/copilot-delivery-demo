@@ -43,7 +43,7 @@ service you own and reload extensions.
 |---|---|
 | `get_state` | Status, latest scan, kept reference, what changed, activity and DICOM evidence. Image arrays and file bytes are left out |
 | `select_preset` | Choose `still`, `gentle` or `larger` |
-| `run_experiment` | Compute a new live scan. With `waitForResult` it waits (about 90 seconds at most) and returns the summary. A scan already running is rejected |
+| `run_experiment` | Compute a new live scan. Default returns the run ID immediately. Optional `waitForResult` waits at most about 90 seconds, then explicitly reports `timedOut` if still running. Full-detail scans take several minutes: poll `get_state` for completion. A scan already running is rejected |
 | `pin_baseline` | Keep a completed scan, by run ID, as the reference. The page calls this **Keep as reference** |
 | `get_comparison` | The latest scan and the reference, with parameters, provenance, changes and activity |
 | `get_pr_note` | Markdown evidence for a pull request. Practice data only |

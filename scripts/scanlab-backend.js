@@ -134,7 +134,8 @@ export async function startBackend(root, {
     child.stderr.on('data', (chunk) => log(chunk.toString().trimEnd()));
     connection = await new Promise((resolve, reject) => {
       let buffer = '';
-      const timer = setTimeout(() => reject(new Error('ScanLab did not become ready. Inspect the local startup error; no fallback result was used.')), 300000);
+      // Startup computes two full-detail acquisitions on a discarded session.
+      const timer = setTimeout(() => reject(new Error('ScanLab did not become ready within 35 minutes. Inspect the local startup error; no fallback result was used.')), 35 * 60_000);
       const finish = (error, value) => { clearTimeout(timer); error ? reject(error) : resolve(value); };
       child.once('error', (error) => {
         closed = !child.pid;

@@ -5,6 +5,8 @@ import dicomParser from 'dicom-parser';
 
 const PRESETS = { still: 'No motion', gentle: 'Controlled shift', larger: 'Larger shift' };
 const FAILURE = 'Acquisition or DICOM verification failed. The previous result, if shown, is not this run. See the local diagnostic log.';
+const SCAN_TIMEOUT = 15 * 60_000;
+test.beforeEach(() => test.setTimeout(3 * SCAN_TIMEOUT));
 
 // Calls the same JSON API the page uses, with the page's own session capability.
 async function api(page, path, body, actor = 'you') {
@@ -27,7 +29,7 @@ async function api(page, path, body, actor = 'you') {
 const liveState = (page) => api(page, 'state');
 
 async function waitForScan(page) {
-  await expect.poll(async () => (await api(page, 'status')).status, { timeout: 120000, intervals: [250] }).not.toBe('running');
+  await expect.poll(async () => (await api(page, 'status')).status, { timeout: SCAN_TIMEOUT, intervals: [1000] }).not.toBe('running');
   const { status, error } = await api(page, 'status');
   expect(status, error ?? 'The scan did not succeed.').toBe('succeeded');
 }
@@ -120,8 +122,8 @@ test('fresh startup has no preloaded or warm-up result', async ({ page }) => {
 });
 
 test('scan, keep a reference, scan again: the reference never changes', async ({ page }) => {
-  // Three live 192×192 brain simulations plus full-pixel DICOM verification.
-  test.setTimeout(240000);
+  // Three live 384×384 brain simulations plus full-pixel DICOM verification.
+  test.setTimeout(3 * SCAN_TIMEOUT);
   const errors = trackErrors(page);
   await open(page);
 
@@ -131,7 +133,7 @@ test('scan, keep a reference, scan again: the reference never changes', async ({
   await expect(page.locator('#run')).toHaveAttribute('aria-busy', 'true');
   await expect(presetRadio(page, 'gentle')).toBeDisabled();
   await expect(page.locator('#coach')).toContainText('Scanning on this computer');
-  await expect(page.locator('#status')).toContainText('Scan complete', { timeout: 90000 });
+  await expect(page.locator('#status')).toContainText('Scan complete', { timeout: SCAN_TIMEOUT });
   await expect(page.locator('#current-label')).toHaveText('No motion');
   await expect(page.locator('#run-label')).toHaveText('Scan again');
   await expect(page.locator('#pipeline [data-state="done"]')).toHaveCount(4);
@@ -148,6 +150,8 @@ test('scan, keep a reference, scan again: the reference never changes', async ({
   const baseline = (await liveState(page)).baseline;
   const baselinePixels = await plotZ(page, 'baseline-image');
   expect(baselinePixels).toEqual(baseline.figure.data[0].z);
+  expect(baselinePixels).toHaveLength(384);
+  expect(await page.locator('#baseline-image').evaluate((node) => node.data[0].zsmooth)).toBe('best');
   expect(baseline.dicom.storedPixelsExact).toBe(true);
   expect(baseline.dicom.maxAbsoluteError).toBeLessThanOrEqual(baseline.dicom.errorBound);
 
@@ -155,7 +159,7 @@ test('scan, keep a reference, scan again: the reference never changes', async ({
     await choose(page, preset);
     await expect(presetRadio(page, preset)).toBeChecked();
     await page.locator('#run').click();
-    await expect(page.locator('#current-label')).toHaveText(PRESETS[preset], { timeout: 90000 });
+    await expect(page.locator('#current-label')).toHaveText(PRESETS[preset], { timeout: SCAN_TIMEOUT });
     await expect(page.locator('#run-label')).toHaveText('Scan again');
     await expect(page.locator('#baseline-caption')).toHaveText(pinnedCaption);
     const live = await liveState(page);
@@ -189,7 +193,7 @@ test('scan, keep a reference, scan again: the reference never changes', async ({
 });
 
 test('scanning again with the same movement gives the same picture in a new file', async ({ page }) => {
-  test.setTimeout(150000);
+  test.setTimeout(3 * SCAN_TIMEOUT);
   await open(page);
   const { live } = await ensureComparison(page);
   const first = live.baseline;
@@ -209,7 +213,7 @@ test('scanning again with the same movement gives the same picture in a new file
 });
 
 test('the saved DICOM file is exactly what the page shows', async ({ page }) => {
-  test.setTimeout(150000);
+  test.setTimeout(3 * SCAN_TIMEOUT);
   const { baseline } = await openWithComparison(page);
   await page.locator('#inspect-side').selectOption('baseline');
   const dicomDownload = page.waitForEvent('download');
@@ -228,7 +232,7 @@ test('the saved DICOM file is exactly what the page shows', async ({ page }) => 
   expect(dataset.string('x00080064')).toBe('SYN');
   expect(dataset.string('x00020010')).toBe('1.2.840.10008.1.2.1');
   const size = baseline.parameters.resolution;
-  expect(size).toBe(192);
+  expect(size).toBe(384);
   expect(dataset.uint16('x00280010')).toBe(size);
   expect(dataset.uint16('x00280011')).toBe(size);
   expect(dataset.uint16('x00280100')).toBe(16);
@@ -252,7 +256,7 @@ test('the saved DICOM file is exactly what the page shows', async ({ page }) => 
 });
 
 test('zoom, pan, brightness and contrast move every image together', async ({ page }) => {
-  test.setTimeout(150000);
+  test.setTimeout(3 * SCAN_TIMEOUT);
   const errors = trackErrors(page);
   await openWithComparison(page);
   await mode(page, 'Side by side');
@@ -261,11 +265,13 @@ test('zoom, pan, brightness and contrast move every image together', async ({ pa
 
   await page.locator('#zoom-in').click();
   await expect(page.locator('#zoom-label')).toHaveText('1.25×');
-  await expect.poll(async () => { const [view] = await sideViews(page); return view.x[1] - view.x[0]; }).toBeCloseTo(192 / 1.25, 3);
+  await expect.poll(async () => { const [view] = await sideViews(page); return view.x[1] - view.x[0]; }).toBeCloseTo(384 / 1.25, 3);
   let [reference, current] = await sideViews(page);
   expect(current).toEqual(reference);
+  expect(await page.evaluate(() => ['baseline-image', 'current-image'].map(
+    (id) => document.getElementById(id).data[0].zsmooth))).toEqual(['best', 'best']);
   for (let step = 0; step < 3; step++) await page.locator('#zoom-in').click();
-  await expect.poll(async () => { const [view] = await sideViews(page); return view.x[1] - view.x[0]; }).toBeCloseTo(96, 3);
+  await expect.poll(async () => { const [view] = await sideViews(page); return view.x[1] - view.x[0]; }).toBeCloseTo(192, 3);
 
   // Dragging one image moves both by the same amount.
   const [startView] = await sideViews(page);
@@ -279,7 +285,7 @@ test('zoom, pan, brightness and contrast move every image together', async ({ pa
   await expect.poll(async () => (await sideViews(page))[1].x[0] - startView.x[0]).toBeGreaterThan(8);
   [reference, current] = await sideViews(page);
   expect(current).toEqual(reference);
-  expect(current.x[0] - startView.x[0]).toBeCloseTo(19.2, 0);
+  expect(current.x[0] - startView.x[0]).toBeCloseTo(38.4, 0);
   expect(current.y).toEqual(startView.y);
 
   await page.locator('#pane-current .frame').focus();
@@ -314,7 +320,7 @@ test('zoom, pan, brightness and contrast move every image together', async ({ pa
   await page.keyboard.press('0');
   await expect(page.locator('#zoom-label')).toHaveText('1×');
   await expect(page.locator('#contrast-value')).toHaveText('100%');
-  await expect.poll(async () => { const [view] = await sideViews(page); return [view.x[1] - view.x[0], view.zmin, view.zmax]; }).toEqual([192, 0, 1]);
+  await expect.poll(async () => { const [view] = await sideViews(page); return [view.x[1] - view.x[0], view.zmin, view.zmax]; }).toEqual([384, 0, 1]);
   [reference, current] = await sideViews(page);
   expect(current).toEqual(reference);
 
@@ -329,7 +335,7 @@ test('zoom, pan, brightness and contrast move every image together', async ({ pa
 });
 
 test('slide and difference views show the same two scans', async ({ page }) => {
-  test.setTimeout(150000);
+  test.setTimeout(3 * SCAN_TIMEOUT);
   const errors = trackErrors(page);
   const live = await openWithComparison(page);
   await expect(page.locator('#panes')).toHaveAttribute('data-mode', 'diff');
@@ -371,7 +377,7 @@ test('slide and difference views show the same two scans', async ({ page }) => {
 });
 
 test('a running scan answers at once and the page stays alive', async ({ page }) => {
-  test.setTimeout(150000);
+  test.setTimeout(3 * SCAN_TIMEOUT);
   await open(page);
   await ensureComparison(page);
   const before = await liveState(page);
@@ -411,13 +417,13 @@ test('a running scan answers at once and the page stays alive', async ({ page })
   expect(probe.sawRunning).toBe(true);
   expect(probe.seen).toBeGreaterThanOrEqual(5);
   expect(probe.slowest).toBeLessThan(3000);
-  await expect(page.locator('#status')).toContainText('Scan complete', { timeout: 60000 });
+  await expect(page.locator('#status')).toContainText('Scan complete', { timeout: SCAN_TIMEOUT });
   await expect(page.locator('#current-label')).toHaveText(PRESETS[target]);
   await expect(page.locator('#export')).toBeEnabled();
 });
 
 test('a quick second click is queued instead of lost', async ({ page }) => {
-  test.setTimeout(150000);
+  test.setTimeout(3 * SCAN_TIMEOUT);
   await open(page);
   await ensureComparison(page);
   const before = await liveState(page);
@@ -427,7 +433,7 @@ test('a quick second click is queued instead of lost', async ({ page }) => {
     document.querySelector(`input[name="preset"][value="${preset}"]`).click();
     document.getElementById('run').click();
   }, target);
-  await expect.poll(async () => (await liveState(page)).result.id, { timeout: 90000 }).not.toBe(before.result.id);
+  await expect.poll(async () => (await liveState(page)).result.id, { timeout: SCAN_TIMEOUT }).not.toBe(before.result.id);
   const after = await liveState(page);
   expect(after.result.preset).toBe(target);
   expect(after.selectedPreset).toBe(target);
@@ -436,7 +442,7 @@ test('a quick second click is queued instead of lost', async ({ page }) => {
 });
 
 test('Copilot actions appear live and are named as Copilot’s', async ({ page }) => {
-  test.setTimeout(150000);
+  test.setTimeout(3 * SCAN_TIMEOUT);
   await open(page);
   const before = await liveState(page);
   const target = Object.keys(PRESETS).find((id) => id !== before.selectedPreset);
@@ -448,7 +454,7 @@ test('Copilot actions appear live and are named as Copilot’s', async ({ page }
   await api(page, 'run', { preset: target }, 'copilot');
   await expect(page.locator('#run-label')).toHaveText('Scanning…', { timeout: 10000 });
   await expect(page.locator('#activity')).toContainText('Copilot started a scan', { timeout: 10000 });
-  await expect(page.locator('#status')).toContainText('started by Copilot', { timeout: 90000 });
+  await expect(page.locator('#status')).toContainText('started by Copilot', { timeout: SCAN_TIMEOUT });
   await expect(page.locator('#activity')).toContainText(/Copilot.s scan finished/);
   const after = await liveState(page);
   expect(after.result.requestedBy).toBe('copilot');
@@ -459,7 +465,7 @@ test('Copilot actions appear live and are named as Copilot’s', async ({ page }
 });
 
 test('prompts and the pull request note copy to the clipboard', async ({ page, context }) => {
-  test.setTimeout(150000);
+  test.setTimeout(3 * SCAN_TIMEOUT);
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(process.env.SCANLAB_TEST_URL).origin });
   const live = await openWithComparison(page);
   // Windows clipboards store line breaks as CRLF; the text itself must still match exactly.
@@ -551,7 +557,7 @@ test('keyboard users can skip straight to the images', async ({ page }) => {
 
 for (const [width, height] of [[1440, 900], [1024, 800], [768, 900], [520, 900], [390, 844]]) {
   test(`the page fits ${width}px without horizontal scrolling`, async ({ page }, info) => {
-    test.setTimeout(150000);
+    test.setTimeout(3 * SCAN_TIMEOUT);
     await page.setViewportSize({ width, height });
     await openWithComparison(page);
     await mode(page, 'Side by side');
@@ -571,7 +577,7 @@ test.describe('on a phone', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
   test('every button, menu and link is large enough to tap', async ({ page }) => {
-    test.setTimeout(150000);
+    test.setTimeout(3 * SCAN_TIMEOUT);
     await openWithComparison(page);
     await page.locator('#technical > summary').click();
     await page.locator('#pr-details > summary').click();
@@ -588,7 +594,7 @@ test.describe('on a phone', () => {
 
 // Kept last: it leaves a new "Larger shift" scan as the reference.
 test('keeping a reference answers at once even when the server is slow', async ({ page }) => {
-  test.setTimeout(150000);
+  test.setTimeout(3 * SCAN_TIMEOUT);
   await open(page);
   await ensureComparison(page);
   await scan(page, 'larger');

@@ -6,7 +6,6 @@ try
         error("ScanLab needs Julia started with --threads=2,1 (one thread for the web server, workers for scans) so the page stays live while a scan computes.")
     println(stderr, "Preparing the live simulation paths; no result will be retained.")
     ScanLab.plotly_asset()
-    ScanLab.warmup()
     ScanLab.warm_requests()
     state = ScanLab.SessionState()
     token = string(ScanLab.uuid4())

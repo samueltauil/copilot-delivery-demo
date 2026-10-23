@@ -75,7 +75,7 @@ test('the coach line guides the next action and never overstates a running or fa
   assert.match(coachLine(stateAt(2, { selectedPreset: 'gentle' })), /Press Scan again/);
   assert.match(coachLine(stateAt(3)), /Slide and What changed/);
   assert.match(coachLine(stateAt(3, { changes: { ...changes, identical: true } })), /identical/);
-  assert.match(coachLine(stateAt(0, { status: 'running' })), /few seconds/);
+  assert.match(coachLine(stateAt(0, { status: 'running' })), /several minutes/);
   assert.match(coachLine(stateAt(3, { status: 'running' })), /previous scan, not this one/);
   assert.match(coachLine(stateAt(3, { status: 'failed' })), /did not finish.*previous scan/);
 });

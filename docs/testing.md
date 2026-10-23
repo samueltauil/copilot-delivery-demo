@@ -12,14 +12,17 @@ prerequisite is a failed result, not a reason to skip a test.
 
 | Command | What it runs | Takes about |
 |---|---|---|
-| `npm run scanlab:check` | Every ScanLab test: Julia, Node and browser | About 18 minutes |
-| `npm run scanlab:test` | ScanLab Julia and Node tests | About 6 minutes |
-| `npm run scanlab:e2e` | ScanLab browser tests | About 11 minutes |
+| `npm run scanlab:check` | Every ScanLab test: Julia, Node and browser | About 110 minutes |
+| `npm run scanlab:test` | ScanLab Julia and Node tests | About 35 minutes |
+| `npm run scanlab:e2e` | ScanLab browser tests, including startup | About 75 minutes |
 | `npm run check` | Every request desk test: Julia, Node and browser | 2 minutes |
-| `npm run check:all` | Both of the above | About 20 minutes |
+| `npm run check:all` | Both of the above | About 112 minutes |
 | `node --test test/*.test.js scanlab/test/*.test.js` | Every Node test. No Julia or browser needed | 10 seconds |
 
-The times are rough, from a Windows development machine after setup. While you
+Full-detail acquisitions take several minutes each. Scan-completion assertions
+allow up to 15 minutes per acquisition, without changing responsiveness or
+pixel-integrity thresholds. Startup rehearses two acquisitions before the
+browser suite begins. The times are rough, from a Windows development machine after setup. While you
 fix something, run one part on its own:
 
 ```powershell
@@ -37,7 +40,7 @@ which Git ignores.
 
 | Suite | Files | What it proves |
 |---|---|---|
-| Julia: imaging | `scanlab/test/science.jl` | Each of the three motion presets runs the real KomaMRI and MRIReco code and gives a finite 192 × 192 picture. The same preset gives the same picture again, in a new run. How far each preset changes the picture is pinned. An independent, single-threaded call to the libraries gives the same pixels |
+| Julia: imaging | `scanlab/test/science.jl` | Each of the three motion presets runs the real KomaMRI and MRIReco code and gives a finite 384 × 384 picture from 103,964 native phantom points. The acquisition stays below the spin grid's spatial sampling limit. The same preset gives the same picture again, in a new run. How far each preset changes the picture is pinned. An independent, single-threaded call to the libraries gives the same pixels |
 | Julia: runs and the reference | `scanlab/test/state.jl` | Bad input is refused. Only one scan runs at a time. The reference never changes after later scans or a failed scan, and a failure says so. Every run computes; nothing is replayed. The activity list names who did what, and unknown names are refused |
 | Julia: DICOM file | `scanlab/test/dicom.jl` | A saved file reads back to the same picture within a measured rounding error. It is a Secondary Capture marked synthetic, with no invented orientation or pixel spacing. Each save gets new IDs. The reference file's bytes never change |
 | Julia: service | `scanlab/test/server.jl` | Routes, methods, the session token and origin checks. A running scan never freezes the server. The start-up rehearsal leaves no result behind |
@@ -77,18 +80,21 @@ The browser tests check that:
 
 ## Results
 
-Results from 22 October 2026 on Windows with Julia 1.10.12, Node 22.20.0 and
-Playwright 1.64.0 (Chromium). Everything passed and nothing was skipped.
+The **384 × 384** ScanLab run completed on 23 October 2026 on Windows with
+Julia 1.10.12, Node 22.20.0 and Playwright 1.64.0 (Chromium).
+`npm run scanlab:check` exited 0 in about 110 minutes. Everything passed and
+nothing was skipped. The separate request desk rows retain their passing
+22 October results; that exercise was not changed or re-run for this upgrade.
 
 | Suite | Passed | Test time |
 |---|---|---|
-| ScanLab Julia: imaging | 70 of 70 | 4 min 30 s |
-| ScanLab Julia: runs and the reference | 47 of 47 | 1.8 s |
-| ScanLab Julia: activity and change measurements | 40 of 40 | 0.4 s |
-| ScanLab Julia: DICOM file | 26 of 26 | 1.2 s |
-| ScanLab Julia: service | 82 of 82 | 24.6 s |
-| ScanLab Node | 38 of 38 | 3.8 s |
-| ScanLab browser | 23 of 23 | 11.3 min |
+| ScanLab Julia: imaging | 76 of 76 | 34 min 38 s |
+| ScanLab Julia: runs and the reference | 47 of 47 | 1.3 s |
+| ScanLab Julia: activity and change measurements | 40 of 40 | 0.3 s |
+| ScanLab Julia: DICOM file | 26 of 26 | 0.8 s |
+| ScanLab Julia: service | 82 of 82 | 18.4 s |
+| ScanLab Node | 38 of 38 | 2.3 s |
+| ScanLab browser | 23 of 23 | About 1 hour, plus startup |
 | Request desk Julia: request store | 39 of 39 | 0.8 s |
 | Request desk Julia: HTTP API | 84 of 84 | 21.7 s |
 | Request desk Julia: study | 14 of 14 | 9.5 s |
@@ -97,6 +103,21 @@ Playwright 1.64.0 (Chromium). Everything passed and nothing was skipped.
 
 Julia counts individual checks. Node and browser counts are whole tests. This is
 a record of one run, not a promise. Run the commands yourself before you present.
+
+The HTTP.jl log included idle-connection timeout warnings and one canceled
+client write (`ECANCELED`). No assertion failed; this was not a warning-free run.
+
+The five README screenshots were captured from that live browser-test session,
+without starting additional scans or replaying saved images. The reference
+remained identical across the capture, including its pixels, parameters and
+DICOM bytes:
+
+| Screenshot evidence | Value |
+|---|---|
+| No motion reference run | `29bdb5bd-6544-4fbd-81c8-7aba8dc57109` |
+| Controlled shift run | `3e9c51c3-cad7-4d49-beda-648d61ebb9a6` |
+| Reference file SHA-256 | `a1da2de2263336a063232b39c96089027b575167579667e0e15ee210117d3b6a` |
+| Reference decoded-pixel SHA-256 | `e16b0a3414edbeac91d8a64dcc9a119d4ebb26c0b778a66a7c97217ba89c2537` |
 
 ## What has not been verified
 

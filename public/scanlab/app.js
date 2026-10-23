@@ -8,7 +8,7 @@ import {
 } from '/story.js';
 
 const WORKFLOW_VERSION = 'dicom-v2';
-const DEFAULT_SIZE = 192;
+const DEFAULT_SIZE = 384;
 const POLL_RUNNING_MS = 400;
 const POLL_IDLE_MS = 1000;
 const SVG_NS = 'http://www.w3.org/2000/svg';

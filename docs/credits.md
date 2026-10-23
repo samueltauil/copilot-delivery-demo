@@ -55,6 +55,9 @@ not claim conformance certification.
 ScanLab ships no external image files. Its only image source is the BrainWeb-derived
 phantom that the pinned KomaMRI library bundles (see above). The live experiment
 remains limited to that fixed phantom. A separate reference image is not bundled.
+The current acquisition uses all of that phantom's native 0.5 mm samples and
+reconstructs 384 × 384 pixels. No new dataset or generated anatomy was added
+for the higher-detail images.
 
 | Candidate | Description | License | Status |
 |---|---|---|---|
