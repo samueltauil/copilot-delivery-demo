@@ -386,6 +386,7 @@ test('a running scan answers at once and the page stays alive', async ({ page })
   await expect(presetRadio(page, target)).toBeChecked();
   await page.locator('#run').click();
   await expect(page.locator('#run-label')).toHaveText('Scanning…', { timeout: 2000 });
+  await expect(page.locator('#status')).toContainText(/\d+:\d{2} elapsed/, { timeout: 5000 });
   await expect(page.locator('#run')).toHaveAttribute('aria-busy', 'true');
   await expect(presetRadio(page, 'still')).toBeDisabled();
   await expect(page.locator('#coach')).toContainText('Scanning on this computer. The image on screen is the previous scan');

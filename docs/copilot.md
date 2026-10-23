@@ -51,6 +51,9 @@ service you own and reload extensions.
 Each action shows up in **Recent activity** as Copilot's. The label is display
 text that the caller reports about itself. It is not security.
 
+The browser status line shows elapsed time for the active run from the recorded
+start event. It does not claim a percentage or predict when the scan will finish.
+
 ## Command-line bridge
 
 If the native Canvas actions are not available (for example in the Copilot CLI),

@@ -10,7 +10,8 @@ permissions:
 jobs:
   check:
     runs-on: windows-latest
-    timeout-minutes: 25
+    # Full-detail ScanLab checks take about 110 minutes locally; allow cold setup too.
+    timeout-minutes: 180
     env:
       JULIA_DEPOT_PATH: ${{ github.workspace }}\.demo-runs\julia-depot
       JULIA_NUM_PRECOMPILE_TASKS: '2'

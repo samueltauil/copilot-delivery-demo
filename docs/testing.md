@@ -141,7 +141,10 @@ DICOM bytes:
 - **Other systems.** Only Windows has been tested. The commands here are
   PowerShell, and the workflow uses `windows-latest`.
 - **GitHub Actions.** `.github/workflows/julia-demo.yml` runs `npm run check` and
-  `npm run scanlab:check` on pull requests and by hand, with a 25-minute limit. It
-  has not run on GitHub yet, so its first hosted result is unknown. A fresh runner
-  must also install and compile every Julia package first, so the limit may turn
-  out to be too tight.
+  `npm run scanlab:check` on pull requests and by hand, with a **180-minute job
+  limit**. The previous 25-minute limit was below the measured 110-minute
+  ScanLab workload alone. The new limit leaves time for the request desk checks,
+  dependency installation and Julia compilation on a fresh runner; it does not
+  skip tests or extend individual scan or responsiveness deadlines. Hosted
+  performance has not been verified for this budget, and a slower runner may
+  still reach the limit. No GitHub Actions run was started to validate this change.

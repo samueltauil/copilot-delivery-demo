@@ -159,6 +159,8 @@ the Copilot app Canvas use the same page and the same running state.
   Every live click still computes a new acquisition, about 7–8 minutes in the
   benchmark; slower CPUs may take longer. Startup has a 35-minute deadline and
   each rehearsal scan a 15-minute deadline; exceeding either fails explicitly.
+  While a live scan runs, the status line shows elapsed time from its recorded
+  start event. It does not estimate a finish time or invent a percentage.
 - **Local only.** Every `/api` request needs the session token in an
   `x-scanlab-token` header, and the browser origin is checked. The page receives
   the token in the URL fragment. Do not share that URL or a screenshot of it.

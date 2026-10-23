@@ -81,11 +81,21 @@ export function coachLine(state) {
   }
 }
 
-export function statusLine(state) {
+export function statusLine(state, now = Date.now()) {
   if (!state) return 'Connecting to the live experiment…';
   if (state.status === 'running') {
     const label = presetFor(state, state.selectedPreset)?.label;
-    return label ? `Scanning “${label}” on this computer…` : 'Scanning on this computer…';
+    const started = [...(state.activity ?? [])].reverse().find(
+      (entry) => entry.kind === 'scan_started' && entry.runId === state.activeRunId
+    );
+    const startedAt = Date.parse(started?.at);
+    const elapsed = Number.isFinite(startedAt)
+      ? Math.max(0, Math.floor((now - startedAt) / 1000))
+      : null;
+    const elapsedLabel = elapsed === null
+      ? ''
+      : ` · ${Math.floor(elapsed / 60)}:${String(elapsed % 60).padStart(2, '0')} elapsed`;
+    return `${label ? `Scanning “${label}”` : 'Scanning'} on this computer${elapsedLabel}…`;
   }
   if (state.status === 'failed') return 'The scan did not finish. Any image on screen is from the previous scan.';
   const result = state.result;

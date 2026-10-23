@@ -85,6 +85,16 @@ test('the status line states what is happening and who started a finished scan',
   assert.equal(statusLine(stateAt(0)), 'Ready. Nothing has been scanned yet.');
   assert.equal(statusLine(stateAt(0, { status: 'running', selectedPreset: 'gentle' })), 'Scanning “Controlled shift” on this computer…');
   assert.equal(statusLine(stateAt(0, { status: 'running', selectedPreset: 'unknown' })), 'Scanning on this computer…');
+  const started = stateAt(0, {
+    status: 'running', activeRunId: 'run-one',
+    activity: [{ kind: 'scan_started', runId: 'run-one', at: '2026-10-23T11:50:00.000Z' }]
+  });
+  assert.equal(statusLine(started, Date.parse('2026-10-23T11:54:07.000Z')), 'Scanning “No motion” on this computer · 4:07 elapsed…');
+  assert.equal(statusLine({ ...started, activeRunId: 'another-run' }, Date.parse('2026-10-23T11:54:07.000Z')), 'Scanning “No motion” on this computer…');
+  assert.equal(statusLine({
+    ...started, activity: [{ ...started.activity[0], at: 'not-a-timestamp' }]
+  }, Date.parse('2026-10-23T11:54:07.000Z')), 'Scanning “No motion” on this computer…');
+  assert.equal(statusLine(started, Date.parse('2026-10-23T11:49:00.000Z')), 'Scanning “No motion” on this computer · 0:00 elapsed…');
   assert.equal(statusLine(stateAt(1, { status: 'failed' })), 'The scan did not finish. Any image on screen is from the previous scan.');
   assert.equal(statusLine(stateAt(1)), 'Scan complete · computed live on this computer in 4.5 s');
   const startedBy = (requestedBy) => statusLine(stateAt(1, { result: scan('44444444', 'still', { requestedBy }) }));
